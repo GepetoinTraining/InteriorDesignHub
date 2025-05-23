@@ -1,91 +1,130 @@
 
-// Mock authentication service
-import { User, UserRole } from '../contexts/AuthContext'; 
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, getIdTokenResult } from 'firebase/auth';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { User, UserRole } from '../contexts/AuthContext'; // Assuming UserRole is defined here or in types
+
+// Initialize Firebase Auth and Functions
+const auth = getAuth();
+const functions = getFunctions();
+
+// TODO: The User type in AuthContext might need to be updated to include tenantId from claims.
+// For now, we'll work with the existing User type and log claims separately.
 
 interface MockUser extends User {
-  password?: string; 
+  password?: string;
 }
 
 // Fix: Changed MOCK_USERS from const to let to allow modification for deleteUser functionality.
 let MOCK_USERS: MockUser[] = [
-  { 
-    id: '1', 
-    email: 'user@example.com', 
-    name: 'Test User', 
-    username: 'user', 
-    password: 'password123', 
-    role: 'professional',
+  {
+    id: '1',
+    email: 'user@example.com',
+    name: 'Test User',
+    username: 'user',
+    password: 'password123',
+    role: UserRole.USER, // Updated to use UserRole enum
     phone: '555-1234',
     company: 'Design Pros Inc.',
     jobTitle: 'Lead Designer',
     avatarUrl: 'https://lh3.googleusercontent.com/a/ACg8ocL3pBwD2wXAD_0XSLnWe276C5oi5Wvs_xHqhx-LrSbrnjAf3=s96-c' // Placeholder
   },
-  { 
-    id: '2', 
-    email: 'admin@example.com', 
-    name: 'Admin User', 
-    username: 'admin', 
-    password: 'adminpassword', 
-    role: 'admin',
+  {
+    id: '2',
+    email: 'admin@example.com',
+    name: 'Admin User',
+    username: 'admin',
+    password: 'adminpassword',
+    role: UserRole.ADMIN, // Updated to use UserRole enum
     phone: '555-0000',
     company: 'Stitch Design HQ',
     jobTitle: 'System Administrator',
     avatarUrl: 'https://lh3.googleusercontent.com/a/ACg8ocL_2J_jD5dndpsVcClUMucn8EhC_BgA1oQylLSSHPJi2=s96-c' // Placeholder
   },
-  { 
-    id: '3', 
-    email: 'sales@example.com', 
-    name: 'Sales Person', 
-    username: 'sales', 
-    password: 'salespassword', 
-    role: 'salesperson',
-    phone: '555-5678',
-    company: 'Sales Solutions Ltd.',
-    jobTitle: 'Sales Executive'
-  },
-  { 
-    id: '4', 
-    email: 'client@example.com', 
-    name: 'Client User', 
-    username: 'client', 
-    password: 'clientpassword', 
-    role: 'consumer',
-    company: 'Home Sweet Home',
-  },
+  // Removed sales and client roles as they are not in UserRole enum for now.
+  // Add them back if UserRole enum is expanded.
 ];
 
 
-export const login = (usernameInput: string, passwordInput: string): Promise<User> => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const userFound = MOCK_USERS.find(
-        (u: MockUser) => u.username === usernameInput && u.password === passwordInput
-      );
+export const login = async (emailInput: string, passwordInput: string): Promise<User> => {
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, emailInput, passwordInput);
+    const firebaseUser = userCredential.user;
 
-      if (userFound) {
-        const { password, ...userToReturn } = userFound;
-        console.log(`User ${userToReturn.name} (Role: ${userToReturn.role}) logged in successfully.`);
-        resolve(userToReturn);
-      } else {
-        reject(new Error('Invalid username or password.'));
-      }
-    }, 1000); 
-  });
+    // Fetch user data from your backend (Prisma) using the new getUserData function
+    const getUserDataCallable = httpsCallable(functions, 'getUserData');
+    const result: any = await getUserDataCallable({ userId: firebaseUser.uid });
+    // It's possible prismaUserData is null if the user exists in Firebase Auth but not in Prisma DB
+    // This can happen if user creation in Prisma failed after Firebase Auth creation.
+    const prismaUserData = result.data as User | null; 
+
+    if (!prismaUserData) {
+      // If user is not in Prisma, this is a critical issue.
+      // Log out the Firebase user to prevent partial login state.
+      await signOut(auth);
+      console.error(`User ${firebaseUser.uid} exists in Firebase Auth but not in Prisma DB. Logging out.`);
+      throw new functions.https.HttpsError("internal", "User record incomplete. Please contact support.");
+    }
+    
+    // Get custom claims
+    const idTokenResult = await getIdTokenResult(firebaseUser, true); // true forces refresh of token and claims
+    console.log("User claims:", idTokenResult.claims);
+    
+    const finalRole = (idTokenResult.claims.role as UserRole) || prismaUserData.role;
+    const finalTenantId = (idTokenResult.claims.tenantId as string) || prismaUserData.tenantId;
+
+    if (!finalRole || !finalTenantId) {
+        // If role or tenantId is still missing after checking claims and Prisma,
+        // this indicates an incomplete user setup.
+        await signOut(auth);
+        console.error(`User ${firebaseUser.uid} is missing role or tenantId. Logging out. Role: ${finalRole}, TenantId: ${finalTenantId}`);
+        throw new functions.https.HttpsError("internal", "User configuration incomplete (missing role or tenant). Please contact support.");
+    }
+
+    const loggedInUser: User = {
+      id: firebaseUser.uid,
+      email: firebaseUser.email || prismaUserData.email,
+      name: prismaUserData.name,
+      username: prismaUserData.username || firebaseUser.email,
+      role: finalRole,
+      tenantId: finalTenantId,
+      phone: prismaUserData.phone,
+      company: prismaUserData.company,
+      jobTitle: prismaUserData.jobTitle,
+      avatarUrl: prismaUserData.avatarUrl,
+    };
+    
+    console.log(`User ${loggedInUser.name} (Role: ${loggedInUser.role}, Tenant: ${loggedInUser.tenantId}) logged in successfully.`);
+    return loggedInUser;
+
+  } catch (error: any) {
+    // Log the specific Firebase error code for better debugging
+    if (error.code) {
+      console.error("Firebase login error code:", error.code, "Message:", error.message);
+    } else {
+      console.error("Login error:", error);
+    }
+    throw error; // Re-throw the error to be handled by the calling component (LoginPage)
+  }
 };
 
-export const logout = (): Promise<void> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log('User logged out.');
-      resolve();
-    }, 500);
-  });
+export const logout = async (): Promise<void> => {
+  try {
+    await signOut(auth);
+    console.log('User logged out.');
+    // AuthContext will handle clearing user state.
+  } catch (error) {
+    console.error("Logout error: ", error);
+    throw error;
+  }
 };
 
 export const updateUserProfile = (
   userId: string,
-  profileData: Partial<Omit<User, 'id' | 'role' | 'email' | 'username'>>
+  profileData: Partial<Omit<User, 'id' | 'role' | 'email' | 'username' | 'tenantId'>>
 ): Promise<User> => {
+  // This function would now likely call a backend function to update Prisma
+  // and potentially Firebase Auth profile if email/name needs to be synced there.
+  // For now, it remains a mock for local data.
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       const userIndex = MOCK_USERS.findIndex(u => u.id === userId);
@@ -96,22 +135,73 @@ export const updateUserProfile = (
       } else {
         reject(new Error("User not found for profile update."));
       }
-    }, 500); // Simulate network delay
+    }, 500);
   });
 };
 
-
-export const getCurrentUser = (): User | null => {
-  return null; 
+// Placeholder - actual implementation will get from AuthContext
+export const getCurrentUserRole = (): string | null => {
+  // const user = auth.currentUser;
+  // if (user) {
+  //   // This would ideally come from AuthContext which gets it from claims
+  //   // For now, returning null or a mock value
+  // }
+  console.warn("getCurrentUserRole is a placeholder and should be implemented via AuthContext.");
+  return null;
 };
 
-// User Management Functions
+// Placeholder - actual implementation will get from AuthContext
+export const getCurrentTenantId = (): string | null => {
+  // const user = auth.currentUser;
+  // if (user) {
+  //   // This would ideally come from AuthContext which gets it from claims
+  // }
+  console.warn("getCurrentTenantId is a placeholder and should be implemented via AuthContext.");
+  return null;
+};
+
+export const updateUserRoleOnServer = async (targetUserId: string, newRole: UserRole, tenantId: string): Promise<void> => {
+  const updateUserRoleCallable = httpsCallable(functions, 'updateUserRole');
+  try {
+    await updateUserRoleCallable({ targetUserId, newRole, tenantId });
+    console.log(`Role for user ${targetUserId} updated to ${newRole} on server.`);
+    // Optionally, force refresh token on the target user if they are currently logged in elsewhere
+    // admin.auth().revokeRefreshTokens(targetUserId) - this is a backend operation though.
+    // Client side, if the current user is the target user, they might need to re-authenticate or refresh token.
+  } catch (error) {
+    console.error('Error updating user role on server:', error);
+    throw error;
+  }
+};
+
+
+// --- The following user management functions are still MOCK and need backend integration ---
+// They are not the primary focus of this subtask but are noted for future work.
+
+export const getCurrentUser = (): User | null => {
+  // This should be replaced by onAuthStateChanged listener logic that sets user state in AuthContext.
+  // For now, it's a simple mock.
+  const fbUser = auth.currentUser;
+  if (fbUser) {
+    // This is a very basic mapping. AuthContext would have richer data.
+    return {
+      id: fbUser.uid,
+      email: fbUser.email || '',
+      name: fbUser.displayName || 'Firebase User',
+      role: UserRole.USER, // Placeholder, should come from claims/AuthContext
+      username: fbUser.email || '', // Placeholder
+      // tenantId will come from claims via AuthContext
+    };
+  }
+  return null;
+};
+
 const API_DELAY_USER_MGMT = 300;
 
+// Mock fetchUsers - eventually this should call getUsersByTenant
 export const fetchUsers = (): Promise<User[]> => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      // Return users without passwords
       const usersToReturn = MOCK_USERS.map(u => {
         const { password, ...user } = u;
         return user;
@@ -121,7 +211,8 @@ export const fetchUsers = (): Promise<User[]> => {
   });
 };
 
-export const createUser = (userData: Omit<User, 'id'> & {password: string}): Promise<User> => {
+// Mock createUser - needs to be refactored for Firebase Auth & Prisma
+export const createUser = (userData: Omit<User, 'id'> & {password?: string}): Promise<User> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (MOCK_USERS.some(u => u.username === userData.username || u.email === userData.email)) {
@@ -131,6 +222,7 @@ export const createUser = (userData: Omit<User, 'id'> & {password: string}): Pro
       const newUser: MockUser = {
         id: `user-${Date.now()}`,
         ...userData,
+        password: userData.password, // Store mock password
       };
       MOCK_USERS.push(newUser);
       const { password, ...userToReturn } = newUser;
@@ -139,12 +231,12 @@ export const createUser = (userData: Omit<User, 'id'> & {password: string}): Pro
   });
 };
 
+// Mock updateUser - needs to be refactored for Firebase Auth & Prisma
 export const updateUser = (userId: string, userData: Partial<Omit<User, 'id'>>): Promise<User> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       const userIndex = MOCK_USERS.findIndex(u => u.id === userId);
       if (userIndex !== -1) {
-        // Prevent username/email collision if being changed
         if (userData.username && MOCK_USERS.some(u => u.id !== userId && u.username === userData.username)) {
           reject(new Error("Username already exists."));
           return;
@@ -163,6 +255,7 @@ export const updateUser = (userId: string, userData: Partial<Omit<User, 'id'>>):
   });
 };
 
+// Mock deleteUser - needs to be refactored for Firebase Auth & Prisma
 export const deleteUser = (userId: string): Promise<{ success: boolean; id: string }> => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {

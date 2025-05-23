@@ -10,7 +10,15 @@
 //import {onRequest} from "firebase-functions/v2/https";
 //import * as logger from "firebase-functions/logger";
 
-export { syncLeadConversion } from './firestore/leads';
+export { syncLeadConversion } from './firestore/leads'; // This might be removed or refactored later
+export * from "./products";
+export * from "./leads"; // Added for the new callable Lead functions
+export * from "./prebudgets"; // Added for the new callable PreBudget functions
+export * from "./users"; // Added for the new callable User functions
+export * from "./tenants"; // Added for the new callable Tenant functions
+export * from "./activities"; // Added for the new callable Activity functions
+export * from "./productSales"; // Added for the new callable ProductSale functions
+export * from "./admin"; // Added for admin-related functions
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript

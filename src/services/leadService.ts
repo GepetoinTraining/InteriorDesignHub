@@ -84,6 +84,39 @@ export const fetchKanbanData = (userRole: User['role']): Promise<KanbanColumnDat
   });
 };
 
+// --- New function to fetch LeadConversions ---
+import { httpsCallable, getFunctions, HttpsCallableResult } from 'firebase/functions';
+import { LeadConversion, LeadConversionFilters } from '../types/lead'; // Assuming these types will be in lead.ts
+
+const functions = getFunctions(); // Get Firebase Functions instance
+
+/**
+ * Fetches lead conversions for a given tenant, with optional filters.
+ * Calls the `getLeadConversions` Firebase callable function.
+ */
+export const fetchLeadConversions = async (
+  tenantId: string,
+  filters?: LeadConversionFilters // Assuming LeadConversionFilters type is defined
+): Promise<LeadConversion[]> => {
+  if (!tenantId) {
+    console.error("fetchLeadConversions called without tenantId.");
+    return []; // Or throw error
+  }
+
+  const getLeadConversionsCallable = httpsCallable(functions, 'getLeadConversions');
+  try {
+    const payload: { tenantId: string; filters?: LeadConversionFilters } = { tenantId };
+    if (filters) {
+      payload.filters = filters;
+    }
+    const result: HttpsCallableResult<LeadConversion[]> = await getLeadConversionsCallable(payload);
+    return result.data || []; // Ensure an array is returned
+  } catch (error) {
+    console.error('Error fetching lead conversions:', error);
+    throw error;
+  }
+};
+
 export const fetchLeadById = (id: string): Promise<Lead | undefined> => {
   return new Promise((resolve) => {
     setTimeout(() => {

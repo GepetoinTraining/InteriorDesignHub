@@ -58,3 +58,24 @@ export interface KanbanColumnDefinition {
 export interface KanbanColumnData extends KanbanColumnDefinition {
   leads: Lead[];
 }
+
+// --- Added for LeadConversion ---
+export interface LeadConversion {
+  id: string; // ID of the LeadConversion record itself
+  leadId: string;
+  contactId: string; // ID of the Contact created/linked during conversion
+  convertedAt: string; // ISO Date string
+  tenantId: string;
+  // Optional: Include parts of the Lead or Contact for display purposes
+  // lead?: Partial<Lead>; 
+  // contact?: { id: string, name: string, email: string }; // Define a Contact type if needed elsewhere
+  // convertedBy?: string; // User ID of who performed the conversion
+}
+
+export interface LeadConversionFilters {
+  leadId?: string;
+  contactId?: string;
+  dateFrom?: string; // ISO Date string
+  dateTo?: string;   // ISO Date string
+  // convertedByUserId?: string;
+}

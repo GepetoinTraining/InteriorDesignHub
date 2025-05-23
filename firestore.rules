@@ -1,5 +1,103 @@
 rules_version = '2';
 
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // app_config collection
+    match /app_config/admin_settings {
+      allow read: if request.auth != null; // Any authenticated user can read
+      // Deny all client-side writes (create, update, delete)
+      // These operations should be handled by backend/callable functions (e.g., initializeAdminAndTenant)
+      allow write: if false;
+    }
+    // Deny access to any other documents in app_config directly
+    match /app_config/{otherDocId} {
+      allow read, write: if false;
+    }
+
+    // Deny all client access to data collections as they are accessed via Callable Functions
+    match /users/{userId} {
+      allow read, write: if false;
+    }
+    match /users/{userId}/{subcollection=**} { // Example for potential subcollections
+      allow read, write: if false;
+    }
+
+    match /tenants/{tenantId} {
+      allow read, write: if false;
+    }
+    match /tenants/{tenantId}/{subcollection=**} {
+      allow read, write: if false;
+    }
+
+    match /products/{productId} {
+      allow read, write: if false;
+    }
+    match /products/{productId}/{subcollection=**} {
+      allow read, write: if false;
+    }
+
+    match /leads/{leadId} {
+      allow read, write: if false;
+    }
+    match /leads/{leadId}/{subcollection=**} {
+      allow read, write: if false;
+    }
+    
+    match /leadConversions/{conversionId} { // Assuming this is the collection name
+      allow read, write: if false;
+    }
+    match /leadConversions/{conversionId}/{subcollection=**} {
+      allow read, write: if false;
+    }
+
+    match /prebudgets/{preBudgetId} { // Assuming 'prebudgets' is the collection name
+      allow read, write: if false;
+    }
+    match /prebudgets/{preBudgetId}/{subcollection=**} {
+      allow read, write: if false;
+    }
+
+    match /activities/{activityId} {
+      allow read, write: if false;
+    }
+    match /activities/{activityId}/{subcollection=**} {
+      allow read, write: if false;
+    }
+
+    match /productSales/{saleId} { // Assuming 'productSales' is the collection name
+      allow read, write: if false;
+    }
+    match /productSales/{saleId}/{subcollection=**} {
+      allow read, write: if false;
+    }
+    
+    // Add rules for any other collections here following the same pattern
+    // e.g., contacts, projects, etc.
+    match /contacts/{contactId} {
+      allow read, write: if false;
+    }
+    match /contacts/{contactId}/{subcollection=**} {
+      allow read, write: if false;
+    }
+
+    match /projects/{projectId} {
+      allow read, write: if false;
+    }
+    match /projects/{projectId}/{subcollection=**} {
+      allow read, write: if false;
+    }
+
+
+    // Default deny all reads and writes if no other rules match.
+    // This is a catch-all for any paths not explicitly defined above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
+// Keep existing Storage rules
 service firebase.storage {
   match /b/{bucket}/o {
     match /{allPaths=**} {

@@ -1,3 +1,5 @@
+// It's crucial that the VITE_FIREBASE_* environment variables are correctly set in your .env file for this configuration to work.
+// Ensure that "Email/Password" sign-in method is enabled in your Firebase project's Authentication settings.
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";

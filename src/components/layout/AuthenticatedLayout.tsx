@@ -13,8 +13,8 @@ interface AuthenticatedLayoutProps {
 }
 
 export const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({ children }) => {
-  const { currentUser, logout, isLoading: authLoading } = useAuth();
-  const { currentTenant, allTenants, isLoadingTenant, setCurrentTenantById } = useTenant();
+  const { currentUser, logout, isLoading: authLoading, role, tenantId: userTenantId } = useAuth(); // Added role, userTenantId
+  const { currentTenant, isLoadingTenant, fetchCurrentTenantDetails } = useTenant(); // Removed allTenants, setCurrentTenantById
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -26,23 +26,24 @@ export const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({ childr
     }
   };
 
-  const handleTenantChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const tenantId = event.target.value;
-    if (tenantId) {
-      setCurrentTenantById(tenantId);
-    }
-  };
+  // Tenant is now fetched based on user's tenantId from AuthContext, via TenantContext's useEffect
+  // No manual tenant switcher needed in this layout for now.
 
-  const headerTitle = currentTenant?.name ? `${currentTenant.name} CRM` : 'DesignCo CRM';
+  const headerTitle = currentTenant?.name ? `${currentTenant.name} CRM` : 'Stitch Design CRM'; // Default title
   const logoColor = currentTenant?.themePrimaryColor || 'var(--color-primary, #0b80ee)';
   const userDisplayName = currentUser?.name || currentUser?.email || 'User';
 
   const effectiveAvatarUrl = currentUser?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userDisplayName)}&background=random&size=96&color=fff`;
 
-  const productsLink = currentUser?.role === 'admin' ? '/admin/products' : '/catalog';
-  const isAdmin = currentUser?.role === 'admin';
-  const isProfessional = currentUser?.role === 'professional';
-  const isSalesOrAdmin = currentUser?.role === 'admin' || currentUser?.role === 'salesperson';
+  // Use role directly from useAuth() for clarity and directness
+  const productsLink = role === 'ADMIN' ? '/admin/products' : '/catalog';
+  const isAdmin = role === 'ADMIN';
+  const isDesigner = role === 'DESIGNER'; // Assuming 'DESIGNER' is the new 'professional'
+  const isUser = role === 'USER'; // Standard user
+  // const isSalesOrAdmin = role === 'ADMIN' || role === 'SALESPERSON'; // SALESPERSON role needs to be defined in UserRole enum if used
+
+  // Example: For "New Pre-Budget", perhaps ADMINs and DESIGNERs can create it.
+  const canCreatePreBudget = isAdmin || isDesigner;
 
 
   return (
@@ -52,7 +53,9 @@ export const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({ childr
         <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 bg-white px-4 sm:px-6 py-3 shadow-sm sticky top-0 z-10">
           <div className="flex items-center gap-3 text-slate-900">
              <div className="size-7" style={{ color: logoColor }}>
-              {currentTenant?.logoUrl ? (
+              {isLoadingTenant ? (
+                <div className="animate-pulse bg-slate-200 rounded-full size-7"></div>
+              ) : currentTenant?.logoUrl ? (
                 <img src={currentTenant.logoUrl} alt={`${currentTenant.name} Logo`} className="h-7 w-auto object-contain" />
               ) : (
                 <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -60,40 +63,19 @@ export const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({ childr
                 </svg>
               )}
             </div>
-            <h2 className="text-slate-900 text-lg sm:text-xl font-bold leading-tight">{headerTitle}</h2>
+            <h2 className="text-slate-900 text-lg sm:text-xl font-bold leading-tight">
+              {isLoadingTenant ? <span className="animate-pulse">Loading...</span> : headerTitle}
+            </h2>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4">
-            {!isLoadingTenant && allTenants && allTenants.length > 1 && (
-              <div className="relative">
-                <select
-                  id="tenant-switcher"
-                  value={currentTenant?.id || ''}
-                  onChange={handleTenantChange}
-                  disabled={isLoadingTenant}
-                  className="form-select appearance-none block w-full sm:w-48 rounded-md border-slate-300 bg-slate-50 h-9 px-3 py-1 text-xs text-slate-700 placeholder-slate-400 
-                             focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)]
-                             disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-200"
-                  aria-label="Switch tenant"
-                >
-                  {allTenants.map(tenant => (
-                    <option key={tenant.id} value={tenant.id}>
-                      {tenant.name}
-                    </option>
-                  ))}
-                </select>
-                 <Icon iconName="arrow_drop_down" className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
-              </div>
-            )}
-             {isLoadingTenant && allTenants && allTenants.length > 1 && (
-                <div className="text-xs text-slate-500">Loading tenants...</div>
-            )}
+          { /* Removed Tenant Switcher UI as tenant is now tied to user context */ }
 
+          <div className="flex items-center gap-2 sm:gap-4"> {/* Main nav and user profile section wrapper */}
             <nav className="hidden md:flex items-center gap-1 sm:gap-2">
               <Link className="text-slate-600 hover:text-[var(--color-primary)] hover:bg-slate-100 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium leading-normal transition-colors duration-150" to="/">Dashboard</Link>
               <Link className="text-slate-600 hover:text-[var(--color-primary)] hover:bg-slate-100 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium leading-normal transition-colors duration-150" to="/leads">Leads</Link>
               <Link className="text-slate-600 hover:text-[var(--color-primary)] hover:bg-slate-100 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium leading-normal transition-colors duration-150" to="/projects">Projects</Link>
-              {(isAdmin || isProfessional) && (
+              {(isAdmin || isDesigner) && ( // Example: Installations link for Admin or Designer
                 <Link className="text-slate-600 hover:text-[var(--color-primary)] hover:bg-slate-100 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium leading-normal transition-colors duration-150" to="/installations/install-1">Installations</Link>
               )}
                <Link className="text-slate-600 hover:text-[var(--color-primary)] hover:bg-slate-100 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium leading-normal transition-colors duration-150" to="/orders">Orders</Link>
@@ -106,14 +88,18 @@ export const AuthenticatedLayout: React.FC<AuthenticatedLayoutProps> = ({ childr
                   <Link className="text-slate-600 hover:text-[var(--color-primary)] hover:bg-slate-100 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium leading-normal transition-colors duration-150" to="/admin/bi-dashboard">BI</Link>
                 </>
               )}
-              {isSalesOrAdmin && (
+              {canCreatePreBudget && ( // Example: New Pre-Budget link for Admin or Designer
                 <Link className="text-slate-600 hover:text-[var(--color-primary)] hover:bg-slate-100 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium leading-normal transition-colors duration-150" to="/prebudgets/new">New Pre-Budget</Link>
               )}
-              <Link className="text-slate-600 hover:text-[var(--color-primary)] hover:bg-slate-100 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium leading-normal transition-colors duration-150" to="/partner-transactions">Partner Finances</Link>
+              {/* Partner Finances might be ADMIN only or a specific role */}
+              {isAdmin && (
+                 <Link className="text-slate-600 hover:text-[var(--color-primary)] hover:bg-slate-100 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm font-medium leading-normal transition-colors duration-150" to="/partner-transactions">Partner Finances</Link>
+              )}
             </nav>
-          </div>
+          {/* This div now correctly closes before the user profile/logout section */}
+          </div> 
           
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4"> {/* User profile and logout section */}
             <button className="text-slate-500 hover:text-slate-700 p-1.5 rounded-full hover:bg-slate-100 transition-colors">
               <Icon iconName="notifications" className="text-xl sm:text-2xl" ariaLabel="Notifications"/>
             </button>

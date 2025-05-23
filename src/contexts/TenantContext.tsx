@@ -1,87 +1,87 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Tenant } from './AuthContext'; 
+import { useAuth } from './AuthContext'; // Import useAuth to get tenantId
 import * as tenantService from '../services/tenantService';
+import { Tenant } from '../types/tenant'; // Ensure Tenant type is correctly defined/imported
 
 interface TenantContextType {
   currentTenant: Tenant | null;
   isLoadingTenant: boolean;
-  tenantError: string | null;
-  setCurrentTenantById: (tenantId: string | null) => Promise<void>;
-  allTenants: Tenant[];
+  tenantError: Error | null; // Store error object for more details
+  fetchCurrentTenantDetails: (tenantId: string) => Promise<void>; // Explicit function to load/reload
 }
 
 const TenantContext = createContext<TenantContextType | undefined>(undefined);
 
-// Default theme colors from globals.css or a sensible fallback
-const DEFAULT_PRIMARY_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim() || '#0b80ee';
-const DEFAULT_PRIMARY_DARK_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-dark').trim() || '#0069cc';
-const DEFAULT_PRIMARY_LIGHT_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-light').trim() || '#60a5fa';
-
-
-const updateThemeVariables = (tenant: Tenant | null) => {
-  const rootStyle = document.documentElement.style;
-  rootStyle.setProperty('--color-primary', tenant?.themePrimaryColor || DEFAULT_PRIMARY_COLOR);
-  rootStyle.setProperty('--color-primary-dark', tenant?.themePrimaryColorDark || DEFAULT_PRIMARY_DARK_COLOR);
-  rootStyle.setProperty('--color-primary-light', tenant?.themePrimaryColorLight || DEFAULT_PRIMARY_LIGHT_COLOR);
-  // Add other theme variables here if needed
+// Default theme colors (consider moving to a theme configuration file)
+const DEFAULT_THEME = {
+  primary: '#0b80ee',
+  primaryDark: '#0069cc',
+  primaryLight: '#60a5fa',
+  // Add other default theme properties as needed
 };
 
+const updateThemeVariables = (tenantDetails: Tenant | null) => {
+  const rootStyle = document.documentElement.style;
+  rootStyle.setProperty('--color-primary', tenantDetails?.themePrimaryColor || DEFAULT_THEME.primary);
+  rootStyle.setProperty('--color-primary-dark', tenantDetails?.themePrimaryColorDark || DEFAULT_THEME.primaryDark);
+  rootStyle.setProperty('--color-primary-light', tenantDetails?.themePrimaryColorLight || DEFAULT_THEME.primaryLight);
+  // Update logo or other theme aspects here
+  // e.g., if you have a logo element:
+  // const logoElement = document.getElementById('app-logo');
+  // if (logoElement && tenantDetails?.logoUrl) {
+  //   logoElement.setAttribute('src', tenantDetails.logoUrl);
+  // }
+};
 
 export const TenantProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentTenant, setCurrentTenant] = useState<Tenant | null>(null);
-  const [allTenants, setAllTenants] = useState<Tenant[]>([]);
-  const [isLoadingTenant, setIsLoadingTenant] = useState<boolean>(true);
-  const [tenantError, setTenantError] = useState<string | null>(null);
+  const [isLoadingTenant, setIsLoadingTenant] = useState<boolean>(false); // Start false, true when fetching
+  const [tenantError, setTenantError] = useState<Error | null>(null);
+  const { tenantId: authTenantId, isLoading: authIsLoading } = useAuth(); // Get tenantId from AuthContext
 
-  useEffect(() => {
-    const loadInitialData = async () => {
-      setIsLoadingTenant(true);
-      setTenantError(null);
-      try {
-        const [defaultTenant, tenants] = await Promise.all([
-          tenantService.fetchDefaultTenant(),
-          tenantService.listTenants()
-        ]);
-        setCurrentTenant(defaultTenant);
-        setAllTenants(tenants);
-        updateThemeVariables(defaultTenant);
-      } catch (err) {
-        console.error("Failed to load initial tenant data", err);
-        setTenantError(err instanceof Error ? err.message : "Could not load tenant data.");
-        setCurrentTenant(null); // Fallback to no tenant
-        updateThemeVariables(null); // Apply default theme
-      } finally {
-        setIsLoadingTenant(false);
-      }
-    };
-    loadInitialData();
-  }, []);
-
-  const setCurrentTenantById = async (tenantId: string | null) => {
-    if (!tenantId) {
+  const fetchCurrentTenantDetails = async (tenantIdToFetch: string) => {
+    if (!tenantIdToFetch) {
       setCurrentTenant(null);
-      updateThemeVariables(null); // Apply default theme if tenantId is null
+      updateThemeVariables(null); // Apply default theme
+      setTenantError(null);
       return;
     }
+
     setIsLoadingTenant(true);
     setTenantError(null);
     try {
-      const tenant = await tenantService.fetchTenantById(tenantId);
-      setCurrentTenant(tenant);
-      updateThemeVariables(tenant);
+      console.log(`TenantContext: Fetching details for tenantId: ${tenantIdToFetch}`);
+      const tenantDetails = await tenantService.fetchTenantDetails(tenantIdToFetch);
+      setCurrentTenant(tenantDetails);
+      updateThemeVariables(tenantDetails);
     } catch (err) {
-      console.error(`Failed to fetch tenant with ID ${tenantId}`, err);
-      setTenantError(err instanceof Error ? err.message : `Could not load tenant ${tenantId}.`);
-      setCurrentTenant(null); // Fallback or keep previous tenant? For now, clear.
+      console.error(`TenantContext: Failed to fetch tenant with ID ${tenantIdToFetch}`, err);
+      setTenantError(err instanceof Error ? err : new Error('Failed to load tenant data.'));
+      setCurrentTenant(null); // Fallback to no tenant
       updateThemeVariables(null); // Apply default theme on error
     } finally {
       setIsLoadingTenant(false);
     }
   };
 
+  useEffect(() => {
+    // Only fetch if auth is not loading and tenantId is available
+    if (!authIsLoading && authTenantId) {
+      fetchCurrentTenantDetails(authTenantId);
+    } else if (!authIsLoading && !authTenantId) {
+      // User is loaded but has no tenantId (e.g. logged out, or new user without tenant assigned)
+      setCurrentTenant(null);
+      updateThemeVariables(null);
+      setTenantError(null); // Clear any previous tenant error
+      setIsLoadingTenant(false); // Not loading if no tenantId to load
+    }
+    // Intentionally not re-running if fetchCurrentTenantDetails changes, only when authTenantId or authIsLoading.
+  }, [authTenantId, authIsLoading]);
+
+
   return (
-    <TenantContext.Provider value={{ currentTenant, allTenants, isLoadingTenant, tenantError, setCurrentTenantById }}>
+    <TenantContext.Provider value={{ currentTenant, isLoadingTenant, tenantError, fetchCurrentTenantDetails }}>
       {children}
     </TenantContext.Provider>
   );
