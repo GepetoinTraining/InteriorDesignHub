@@ -1,49 +1,49 @@
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LoginPage from './src/pages/LoginPage';
-import DashboardPage from './src/pages/DashboardPage';
-import UserProfilePage from './src/pages/UserProfilePage';
-import KanbanBoardPage from './src/pages/KanbanBoardPage';
-import ProductListPage from './src/pages/admin/ProductListPage';
-import AddProductPage from './src/pages/admin/AddProductPage';
-import EditProductPage from './src/pages/admin/EditProductPage';
-import ProductCatalogPage from './src/pages/ProductCatalogPage';
-import StockManagementPage from './src/pages/admin/StockManagementPage';
-import PreBudgetCreatePage from './src/pages/PreBudgetCreatePage';
-import PreBudgetDetailsPage from './src/pages/PreBudgetDetailsPage';
-import BudgetGenerationPage from './src/pages/BudgetGenerationPage';
-import BudgetAndPreviewPage from './src/pages/BudgetAndPreviewPage'; 
-import CounterProposalPage from './src/pages/CounterProposalPage';
-import ShopPage from './src/pages/ShopPage';
-import ClientQuoteDetailsPage from './src/pages/ClientQuoteDetailsPage';
-import MessagingPage from './src/pages/MessagingPage';
-import InvoicesPage from './src/pages/InvoicesPage';
-import ClientPaymentsPage from './src/pages/ClientPaymentsPage';
-import PaymentPopupPage from './src/pages/PaymentPopupPage';
-import VendorsPage from './src/pages/VendorsPage';
-import BudgetsDashboardPage from './src/pages/BudgetsDashboardPage';
-import FinancialDashboardPage from './src/pages/FinancialDashboardPage';
-import VisitsCalendarPage from './src/pages/VisitsCalendarPage';
-import ReportGenerationPage from './src/pages/ReportGenerationPage';
-import PartnerTransactionsPage from './src/pages/PartnerTransactionsPage';
-import ClientsListPage from './src/pages/ClientsListPage';
-import ClientDetailPage from './src/pages/ClientDetailPage'; 
-import ProjectsDashboardPage from './src/pages/ProjectsDashboardPage';
-import ProjectDetailPage from './src/pages/ProjectDetailPage';
-import LeadDetailPage from './src/pages/LeadDetailPage';
-import NewProjectPage from './src/pages/NewProjectPage';
-import ClientProjectDetailPage from './src/pages/ClientProjectDetailPage';
-import UserManagementPage from './src/pages/admin/UserManagementPage';
-import AdminBiDashboardPage from './src/pages/admin/AdminBiDashboardPage';
-import InstallationChecklistPage from './src/pages/InstallationChecklistPage';
-import OrdersPage from './src/pages/OrdersPage'; // Added OrdersPage import
-
-import { AuthProvider } from './src/contexts/AuthContext';
-import { TenantProvider } from './src/contexts/TenantContext';
-import { NotificationProvider } from './src/contexts/NotificationContext';
-import ProtectedRoute from './src/components/auth/ProtectedRoute';
-import { AuthenticatedLayout } from './src/components/layout/AuthenticatedLayout.tsx';
+import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+import UserProfilePage from './pages/UserProfilePage';
+import KanbanBoardPage from './pages/KanbanBoardPage';
+import ProductListPage from './pages/admin/ProductListPage';
+import AddProductPage from './pages/admin/AddProductPage';
+import EditProductPage from './pages/admin/EditProductPage';
+import ProductCatalogPage from './pages/ProductCatalogPage';
+import StockManagementPage from './pages/admin/StockManagementPage';
+import PreBudgetCreatePage from './pages/PreBudgetCreatePage';
+import PreBudgetDetailsPage from './pages/PreBudgetDetailsPage';
+import BudgetGenerationPage from './pages/BudgetGenerationPage';
+import BudgetAndPreviewPage from './pages/BudgetAndPreviewPage'; 
+import CounterProposalPage from './pages/CounterProposalPage';
+import ShopPage from './pages/ShopPage';
+import ClientQuoteDetailsPage from './pages/ClientQuoteDetailsPage';
+import MessagingPage from './pages/MessagingPage';
+import InvoicesPage from './pages/InvoicesPage';
+import ClientPaymentsPage from './pages/ClientPaymentsPage';
+import PaymentPopupPage from './pages/PaymentPopupPage';
+import VendorsPage from './pages/VendorsPage';
+import BudgetsDashboardPage from './pages/BudgetsDashboardPage';
+import FinancialDashboardPage from './pages/FinancialDashboardPage';
+import VisitsCalendarPage from './pages/VisitsCalendarPage';
+import ReportGenerationPage from './pages/ReportGenerationPage';
+import PartnerTransactionsPage from './pages/PartnerTransactionsPage';
+import ClientsListPage from './pages/ClientsListPage';
+import ClientDetailPage from './pages/ClientDetailPage'; 
+import ProjectsDashboardPage from './pages/ProjectsDashboardPage';
+import ProjectDetailPage from './pages/ProjectDetailPage';
+import LeadDetailPage from './pages/LeadDetailPage';
+import NewProjectPage from './pages/NewProjectPage';
+import ClientProjectDetailPage from './pages/ClientProjectDetailPage';
+import UserManagementPage from './pages/admin/UserManagementPage';
+import AdminBiDashboardPage from './pages/admin/AdminBiDashboardPage';
+import InstallationChecklistPage from './pages/InstallationChecklistPage';
+import OrdersPage from './pages/OrdersPage'; // Added OrdersPage import
+import RegisterPage from './pages/RegisterPage';
+import { AuthProvider } from './contexts/AuthContext';
+import { TenantProvider } from './contexts/TenantContext';
+import { NotificationProvider } from './contexts/NotificationContext';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import { AuthenticatedLayout } from './components/layout/AuthenticatedLayout.tsx';
 
 const App: React.FC = () => {
   return (
@@ -53,16 +53,7 @@ const App: React.FC = () => {
           <Router>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
-              <Route 
-    path="/" 
-    element={
-      <ProtectedRoute>
-        <AuthenticatedLayout>
-          <DashboardPage />
-        </AuthenticatedLayout>
-      </ProtectedRoute>
-    } 
-  />
+              <Route path="/register" element={<RegisterPage />} />
               <Route 
                 path="/" 
                 element={
