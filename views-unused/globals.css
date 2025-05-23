@@ -1,0 +1,286 @@
+1. Typography:
+
+We'll define variables for key typographic elements. You can adjust the specific font families, sizes, and other values based on your initial design preferences. These are just examples:
+
+:root {
+  /* Base Font */
+  --font-family-base: 'Your Base Font', sans-serif; /* Example: 'Roboto', sans-serif */
+  --font-size-base: 16px; /* Base font size for body text */
+  --line-height-base: 1.5; /* Base line height for readability */
+  --font-weight-base: 400; /* Normal font weight */
+  --text-color-base: #333; /* Default text color */
+
+  /* Headings */
+  --font-family-headings: 'Your Heading Font', sans-serif; /* Example: 'Open Sans', sans-serif */
+  --heading-font-weight: 700; /* Bold font weight for headings */
+
+  /* Heading Sizes (adjust as needed) */
+  --h1-font-size: 2.5rem; /* Example: 40px */
+  --h2-font-size: 2rem; /* Example: 32px */
+  --h3-font-size: 1.75rem; /* Example: 28px */
+  --h4-font-size: 1.5rem; /* Example: 24px */
+  --h5-font-size: 1.25rem; /* Example: 20px */
+  --h6-font-size: 1rem; /* Example: 16px */
+
+  /* Other Text Elements */
+  --link-color: #007bff; /* Default link color */
+  --link-hover-color: #0056b3; /* Link hover color */
+  --small-font-size: 0.875rem; /* Example: 14px */
+  --text-color-secondary: #6c757d; /* Secondary text color */
+}
+2. Color Palette:
+
+We'll define a set of core colors using semantic variables. Again, these are just examples, and you can customize them to match your desired aesthetic:
+
+:root {
+  /* Primary Colors */
+  --color-primary: #007bff; /* A main brand color */
+  --color-primary-light: #4da6ff; /* A lighter shade of the primary color */
+  --color-primary-dark: #0056b3; /* A darker shade of the primary color */
+
+  /* Secondary Colors */
+  --color-secondary: #6c757d; /* A complementary color */
+  --color-secondary-light: #aab1b8;
+  --color-secondary-dark: #4d5154;
+
+  /* Accent Colors */
+  --color-accent1: #28a745; /* Example: green for success */
+  --color-accent2: #dc3545; /* Example: red for error */
+  --color-accent3: #ffc107; /* Example: yellow for warning */
+
+  /* Background Colors */
+  --color-background: #fff; /* Default background color */
+  --color-background-light: #f8f9fa; /* A lighter background color */
+
+  /* Text Colors (already defined in Typography, but can be overridden here) */
+  /* --text-color-base: #333; */
+
+  /* Border Colors */
+  --color-border: #ccc; /* Default border color */
+
+  /* Other UI Element Colors */
+  --button-text-color: #fff; /* Default button text color */
+  /* You can add more specific variables as needed, e.g., for input field backgrounds, etc. */
+}
+/* Basic Button Styles */
+.button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-base);
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid transparent; /* Initially transparent, will be styled with variables */
+  border-radius: 0.25rem; /* Adjust as needed */
+  transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out; /* Smooth transition for hover effect */
+}
+
+/* Primary Button (using primary color variables) */
+.button-primary {
+  background-color: var(--color-primary);
+  color: var(--button-text-color); /* Assuming you have a --button-text-color variable */
+  border-color: var(--color-primary);
+}
+
+.button-primary:hover,
+.button-primary:focus {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+/* Secondary Button (using secondary color variables) */
+.button-secondary {
+  background-color: var(--color-secondary);
+  color: var(--button-text-color);
+  border-color: var(--color-secondary);
+}
+
+.button-secondary:hover,
+.button-secondary:focus {
+  background-color: var(--color-secondary-dark);
+  border-color: var(--color-secondary-dark);
+}
+
+/* Outlined Button (example with inverted colors) */
+.button-outlined {
+  background-color: transparent;
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.button-outlined:hover,
+.button-outlined:focus {
+  background-color: var(--color-primary-light); /* A light version of the primary color for hover */
+  color: var(--button-text-color); /* Ensure text is readable on hover */
+}
+
+/* Disabled Button */
+.button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+/* Basic Input Field Styles */
+.input-field {
+  display: block; /* Or inline-block, depending on your layout */
+  width: 100%; /* Or a specific width */
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  color: var(--text-color-base);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem; /* Adjust as needed */
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; /* Smooth transition for focus effect */
+}
+
+/* Focus State */
+.input-field:focus {
+  border-color: var(--color-primary);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(var(--color-primary-rgb), 0.25); /* Use rgba for box-shadow with opacity */
+}
+
+/* Placeholder Text */
+.input-field::placeholder {
+  color: var(--text-color-secondary);
+  opacity: 0.7; /* Adjust placeholder opacity */
+}
+
+/* Disabled State */
+.input-field:disabled {
+  background-color: var(--color-background-light);
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Optional: Label Styling */
+.input-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: var(--font-weight-base);
+}
+
+/* Optional: Error/Validation State */
+.input-field.error {
+  border-color: var(--color-accent2); /* Assuming --color-accent2 is your error color */
+}
+
+.input-field.error:focus {
+  box-shadow: 0 0 0 0.2rem rgba(var(--color-accent2-rgb), 0.25);
+}
+
+/* If you have error messages associated with input fields */
+.input-error-message {
+  color: var(--color-accent2);
+  font-size: var(--small-font-size);
+  margin-top: 0.25rem;
+}
+/* Basic Card Styles */
+.card {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem; /* Adjust as needed */
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* Subtle shadow */
+  transition: box-shadow 0.15s ease-in-out; /* Smooth transition for hover effect */
+  /* Optional: Overflow hidden to prevent content from bleeding outside the card */
+  /* overflow: hidden; */
+}
+
+/* Optional: Hover State */
+.card:hover {
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15); /* Slightly larger shadow on hover */
+}
+
+/* Card Header */
+.card-header {
+  padding: 1rem 1.25rem;
+  /* Optional: Add a border between header and body */
+  /* border-bottom: 1px solid var(--color-border); */
+  font-weight: var(--heading-font-weight);
+}
+
+/* Card Body */
+.card-body {
+  padding: 1.25rem;
+  color: var(--text-color-base);
+}
+
+/* Card Footer (if needed) */
+.card-footer {
+  padding: 1rem 1.25rem;
+  background-color: var(--color-background-light); /* A slightly different background for the footer */
+  border-top: 1px solid var(--color-border);
+  text-align: right; /* Example: Align content to the right */
+}
+
+/* Optional: Card Title within the header */
+.card-title {
+  margin-bottom: 0.5rem;
+  font-size: var(--h5-font-size); /* Use a heading size variable */
+}
+
+/* Optional: Card Image (if you have cards with images) */
+.card-image {
+  width: 100%;
+  height: auto;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  /* Optional: Object-fit to control image scaling */
+  /* object-fit: cover; */
+}
+/* Basic Badge Styles */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem; /* Adjust as needed */
+  font-weight: 700; /* Or another appropriate weight */
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.5rem; /* Or a different value for roundedness */
+  /* Use a default background and text color, which can be overridden by variants */
+  background-color: var(--color-secondary-light); /* Example default */
+  color: var(--text-color-base); /* Example default */
+}
+
+/* Primary Badge (using primary color variables) */
+.badge-primary {
+  background-color: var(--color-primary);
+  color: var(--button-text-color); /* Assuming --button-text-color is suitable for badge text */
+}
+
+/* Secondary Badge (using secondary color variables) */
+.badge-secondary {
+  background-color: var(--color-secondary);
+  color: var(--button-text-color);
+}
+
+/* Success Badge (using an accent color variable) */
+.badge-success {
+  background-color: var(--color-accent1); /* Assuming --color-accent1 is your "success" color */
+  color: var(--button-text-color);
+}
+
+/* Warning Badge */
+.badge-warning {
+  background-color: var(--color-accent3); /* Assuming --color-accent3 is your "warning" color */
+  color: var(--text-color-base); /* Or a contrasting color */
+}
+
+/* Error Badge */
+.badge-error {
+  background-color: var(--color-accent2); /* Assuming --color-accent2 is your "error" color */
+  color: var(--button-text-color);
+}
+
+/* Optional: Small Badge Variation */
+.badge-sm {
+  padding: 0.1rem 0.4rem;
+  font-size: 0.65rem;
+}

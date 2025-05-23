@@ -1,0 +1,60 @@
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<title>Stitch Design - Login</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+      body {
+        font-family: Inter, "Noto Sans", sans-serif;
+      }
+      .form-input {
+        border-color: #e5e7eb;transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      }
+      .form-input:focus {
+        border-color: #0b80ee;
+        box-shadow: 0 0 0 2px rgba(11, 128, 238, 0.2);outline: none;
+      }
+    </style>
+</head>
+<body class="bg-slate-50">
+<div class="relative flex size-full min-h-screen flex-col group/design-root overflow-x-hidden">
+<div class="flex flex-col items-center justify-center min-h-screen px-4 py-12">
+<div class="w-full max-w-md">
+<div class="flex flex-col items-center mb-8">
+<div class="bg-[#0b80ee] p-3 rounded-lg mb-4">
+<svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
+</svg>
+</div>
+<h1 class="text-3xl font-bold text-[#111518] tracking-tight">Stitch Design CRM</h1>
+<p class="text-slate-600 mt-1">Access your design projects and leads.</p>
+</div>
+<div class="bg-white p-8 rounded-xl shadow-lg">
+<h2 class="text-2xl font-semibold text-center text-[#111518] mb-6">Welcome Back</h2>
+<form>
+<div class="mb-5">
+<label class="block text-sm font-medium text-slate-700 mb-1.5" for="username">Username</label>
+<input class="form-input block w-full rounded-lg border-slate-300 bg-slate-50 h-12 px-4 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#0b80ee]/50" id="username" placeholder="e.g., john.doe" type="text" value=""/>
+</div>
+<div class="mb-6">
+<label class="block text-sm font-medium text-slate-700 mb-1.5" for="password">Password</label>
+<input class="form-input block w-full rounded-lg border-slate-300 bg-slate-50 h-12 px-4 text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-[#0b80ee]/50" id="password" placeholder="Enter your password" type="password" value=""/>
+</div>
+<button class="flex w-full items-center justify-center rounded-lg h-11 px-4 bg-[#0b80ee] text-white text-sm font-semibold tracking-wide hover:bg-[#0069cc] transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#0b80ee] focus:ring-offset-2" type="submit">
+                Login
+              </button>
+<div class="mt-6 text-center">
+<a class="text-sm text-[#0b80ee] hover:text-[#0069cc] hover:underline font-medium" href="#">Forgot Password?</a>
+</div>
+</form>
+</div>
+<p class="mt-8 text-center text-xs text-slate-500">
+            © 2024 Stitch Design. All rights reserved.
+          </p>
+</div>
+</div>
+</div>
+
+</body></html>

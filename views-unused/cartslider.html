@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<title>Stitch Design - Cart</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+      .drawer {
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+      }
+      .drawer.open {
+        transform: translateX(0);
+      }
+      .overlay {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+      }
+      .overlay.open {
+        opacity: 1;
+        visibility: visible;
+      }.custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #a1a1a1;
+      }
+    </style>
+</head>
+<body class="bg-gray-100" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="relative flex min-h-screen flex-col group/design-root overflow-x-hidden">
+<div class="flex-grow p-6">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 px-10 py-3 bg-white shadow-sm fixed top-0 left-0 right-0 z-40">
+<div class="flex items-center gap-4 text-slate-900">
+<div class="size-6 text-[#cedfed]">
+<svg fill="currentColor" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M13.8261 30.5736C16.7203 29.8826 20.2244 29.4783 24 29.4783C27.7756 29.4783 31.2797 29.8826 34.1739 30.5736C36.9144 31.2278 39.9967 32.7669 41.3563 33.8352L24.8486 7.36089C24.4571 6.73303 23.5429 6.73303 23.1514 7.36089L6.64374 33.8352C8.00331 32.7669 11.0856 31.2278 13.8261 30.5736Z"></path>
+<path clip-rule="evenodd" d="M39.998 35.764C39.9944 35.7463 39.9875 35.7155 39.9748 35.6706C39.9436 35.5601 39.8949 35.4259 39.8346 35.2825C39.8168 35.2403 39.7989 35.1993 39.7813 35.1602C38.5103 34.2887 35.9788 33.0607 33.7095 32.5189C30.9875 31.8691 27.6413 31.4783 24 31.4783C20.3587 31.4783 17.0125 31.8691 14.2905 32.5189C12.0012 33.0654 9.44505 34.3104 8.18538 35.1832C8.17384 35.2075 8.16216 35.233 8.15052 35.2592C8.09919 35.3751 8.05721 35.4886 8.02977 35.589C8.00356 35.6848 8.00039 35.7333 8.00004 35.7388C8.00004 35.739 8 35.7393 8.00004 35.7388C8.00004 35.7641 8.0104 36.0767 8.68485 36.6314C9.34546 37.1746 10.4222 37.7531 11.9291 38.2772C14.9242 39.319 19.1919 40 24 40C28.8081 40 33.0758 39.319 36.0709 38.2772C37.5778 37.7531 38.6545 37.1746 39.3151 36.6314C39.9006 36.1499 39.9857 35.8511 39.998 35.764ZM4.95178 32.7688L21.4543 6.30267C22.6288 4.4191 25.3712 4.41909 26.5457 6.30267L43.0534 32.777C43.0709 32.8052 43.0878 32.8338 43.104 32.8629L41.3563 33.8352C43.104 32.8629 43.1038 32.8626 43.104 32.8629L43.1051 32.865L43.1065 32.8675L43.1101 32.8739L43.1199 32.8918C43.1276 32.906 43.1377 32.9246 43.1497 32.9473C43.1738 32.9925 43.2062 33.0545 43.244 33.1299C43.319 33.2792 43.4196 33.489 43.5217 33.7317C43.6901 34.1321 44 34.9311 44 35.7391C44 37.4427 43.003 38.7775 41.8558 39.7209C40.6947 40.6757 39.1354 41.4464 37.385 42.0552C33.8654 43.2794 29.133 44 24 44C18.867 44 14.1346 43.2794 10.615 42.0552C8.86463 41.4464 7.30529 40.6757 6.14419 39.7209C4.99695 38.7775 3.99999 37.4427 3.99999 35.7391C3.99999 34.8725 4.29264 34.0922 4.49321 33.6393C4.60375 33.3898 4.71348 33.1804 4.79687 33.0311C4.83898 32.9556 4.87547 32.8935 4.9035 32.8471C4.91754 32.8238 4.92954 32.8043 4.93916 32.7889L4.94662 32.777L4.95178 32.7688ZM35.9868 29.004L24 9.77997L12.0131 29.004C12.4661 28.8609 12.9179 28.7342 13.3617 28.6282C16.4281 27.8961 20.0901 27.4783 24 27.4783C27.9099 27.4783 31.5719 27.8961 34.6383 28.6282C35.082 28.7342 35.5339 28.8609 35.9868 29.004Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-slate-900 text-xl font-bold leading-tight tracking-tight">Design Hub</h2>
+</div>
+<div class="flex flex-1 justify-end gap-6">
+<nav class="flex items-center gap-6">
+<a class="text-slate-700 text-sm font-medium hover:text-[#cedfed] transition-colors" href="#">Products</a>
+<a class="text-slate-700 text-sm font-medium hover:text-[#cedfed] transition-colors" href="#">Designers</a>
+<a class="text-slate-700 text-sm font-medium hover:text-[#cedfed] transition-colors" href="#">Inspiration</a>
+<a class="text-slate-700 text-sm font-medium hover:text-[#cedfed] transition-colors" href="#">Sale</a>
+</nav>
+<div class="flex items-center gap-2">
+<button class="flex items-center justify-center rounded-full h-10 w-10 bg-gray-100 hover:bg-gray-200 text-slate-700 transition-colors">
+<svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+<path d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z"></path>
+</svg>
+</button>
+<button class="flex items-center justify-center rounded-full h-10 w-10 bg-gray-100 hover:bg-gray-200 text-slate-700 transition-colors relative" id="cart-icon">
+<svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+<path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,160H40V56H216V200ZM176,88a48,48,0,0,1-96,0,8,8,0,0,1,16,0,32,32,0,0,0,64,0,8,8,0,0,1,16,0Z"></path>
+</svg>
+<span class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#cedfed] text-xs font-semibold text-slate-900">3</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-gray-200" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCw9Z9dO60-aB9cGo2iMfHG8I7jvix6CUZKu0gct4x8kWe3OxYQn3gvq0_7hXdnk30LWP8RLpbIs4iB1RmFeTsxs7y8zraUFDC5QKFfaMSKtrvnWcD1AaF7U6SBObq88BcG4muhCy2RqgwB5FW8FIUZjMiVlVWKYV51gARIItFClnMAM9heQ2ONeNeaUjj-aw5Bb-G0ZF2A5s-5xzHDn8YGntv_EORAZsrXQFrwsJASmH-4BbazfhiSaCHQ6aQxNfEQvVt2TyS1ZNZI");'></div>
+</div>
+</header>
+<div class="pt-24 text-center">
+<p class="text-slate-700">Click the shopping cart icon in the header to open the drawer.</p>
+</div>
+</div>
+<div class="overlay fixed inset-0 bg-black/30 z-40" id="drawer-overlay"></div>
+<aside class="drawer fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-xl z-50 flex flex-col" id="cart-drawer">
+<div class="flex items-center justify-between p-6 border-b border-gray-200">
+<h2 class="text-xl font-semibold text-slate-800">Your Cart</h2>
+<button class="text-gray-500 hover:text-gray-700 transition-colors" id="close-drawer">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z"></path>
+</svg>
+</button>
+</div>
+<div class="flex-grow overflow-y-auto p-6 space-y-6 custom-scrollbar">
+<div class="flex items-start gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-20 border border-gray-100" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCPgEpq0djcoZvCrUwvFkemWd3J82vJrw3b4558pgKh-vXkJel-tGEZH7UeggjNGeW0lJIOHQdr-KdTpZpmJOYz6RnJmxoAxptgoStR_8Oo5HKCSDY_tQ9Ash5BUE7Sa7knbK-AeEzlcIkrjI9DbPnufAXvzCKE2Uq9S6Jz_DgYraV365paHVUZAcCOBhpX7wDMNDAxGcZuRvn6itsHK8rmPiD2Z9X1l6NWWIlRT3C64mn9CjgoB9GsWJ2O7OPB6gVSQW2A6lFlUYUo");'></div>
+<div class="flex-grow">
+<h3 class="text-slate-800 text-base font-medium leading-tight">Modern Sofa</h3>
+<p class="text-slate-500 text-sm">Unit Price: $1,200.00</p>
+<div class="flex items-center gap-2 mt-2">
+<button class="text-slate-500 hover:text-slate-700 p-1 rounded-full border border-gray-300 hover:border-gray-400 transition-colors">
+<svg fill="currentColor" height="16" viewBox="0 0 256 256" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z"></path>
+</svg>
+</button>
+<span class="text-slate-700 text-sm font-medium w-8 text-center">1</span>
+<button class="text-slate-500 hover:text-slate-700 p-1 rounded-full border border-gray-300 hover:border-gray-400 transition-colors">
+<svg fill="currentColor" height="16" viewBox="0 0 256 256" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
+</svg>
+</button>
+</div>
+</div>
+<div class="text-right">
+<p class="text-slate-800 text-base font-semibold">$1,200.00</p>
+<button class="text-red-500 hover:text-red-700 text-xs font-medium mt-1 transition-colors">Remove</button>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-20 border border-gray-100" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBVntZ6pT3HcmDioopglPnI853cq1y9OElp3DdQn4_v0Udy1tPmf9Uk3L9UnR2pqO3tnNECIDlQPmlndiXOShXPDaajaAaALX_9WKIFxxdQrIpX88s-e7duHSE4V3ZPL5BLrZFUfltH0ncW3CpVavIxSRgIqbUnxlkNlH8ab_bWxyynIqj42OmsVkh45ZCRfP3-VlqjZ_z9y0OCxKhecsDdUy5XU1AjDyQIdPfzc6BS6xcMmDHLG8EVNtypn7qSdAPn47J6jQ___qs4");'></div>
+<div class="flex-grow">
+<h3 class="text-slate-800 text-base font-medium leading-tight">Minimalist Coffee Table</h3>
+<p class="text-slate-500 text-sm">Unit Price: $150.00</p>
+<div class="flex items-center gap-2 mt-2">
+<button class="text-slate-500 hover:text-slate-700 p-1 rounded-full border border-gray-300 hover:border-gray-400 transition-colors">
+<svg fill="currentColor" height="16" viewBox="0 0 256 256" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z"></path>
+</svg>
+</button>
+<span class="text-slate-700 text-sm font-medium w-8 text-center">2</span>
+<button class="text-slate-500 hover:text-slate-700 p-1 rounded-full border border-gray-300 hover:border-gray-400 transition-colors">
+<svg fill="currentColor" height="16" viewBox="0 0 256 256" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
+</svg>
+</button>
+</div>
+</div>
+<div class="text-right">
+<p class="text-slate-800 text-base font-semibold">$300.00</p>
+<button class="text-red-500 hover:text-red-700 text-xs font-medium mt-1 transition-colors">Remove</button>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-20 border border-gray-100" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCSRCjNsvSU7uGMCYxt73g3_Tx72IcRsYY4i_uSDk8bZB1WfZz60W5L9IA7yBuz-ikmEkZI0a6FPGE3h3E9dkTdb3N5MY6JTtbY7d2SYqPr_Ok4-95UP770ExVvGyLsm0qaswmZj3984ACbmiki0GqAxDQE71J0D5pC6wSO-Xm5bCJ3kGZNq6EWVQwORAjRywU1Pguvx_Tk3PtGeAOASay1G_j2SNnauUp08PeJDYFO3cMdxTTYPCcH7zJwCipRG_kejIaXqpahfqHf");'></div>
+<div class="flex-grow">
+<h3 class="text-slate-800 text-base font-medium leading-tight">Abstract Art Print</h3>
+<p class="text-slate-500 text-sm">Unit Price: $150.00</p>
+<div class="flex items-center gap-2 mt-2">
+<button class="text-slate-500 hover:text-slate-700 p-1 rounded-full border border-gray-300 hover:border-gray-400 transition-colors">
+<svg fill="currentColor" height="16" viewBox="0 0 256 256" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128Z"></path>
+</svg>
+</button>
+<span class="text-slate-700 text-sm font-medium w-8 text-center">1</span>
+<button class="text-slate-500 hover:text-slate-700 p-1 rounded-full border border-gray-300 hover:border-gray-400 transition-colors">
+<svg fill="currentColor" height="16" viewBox="0 0 256 256" width="16" xmlns="http://www.w3.org/2000/svg">
+<path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path>
+</svg>
+</button>
+</div>
+</div>
+<div class="text-right">
+<p class="text-slate-800 text-base font-semibold">$150.00</p>
+<button class="text-red-500 hover:text-red-700 text-xs font-medium mt-1 transition-colors">Remove</button>
+</div>
+</div>
+</div>
+<div class="p-6 border-t border-gray-200">
+<div class="flex justify-between items-center mb-4">
+<p class="text-slate-600 text-lg font-medium">Subtotal</p>
+<p class="text-slate-900 text-xl font-semibold">$1,650.00</p>
+</div>
+<div class="space-y-3">
+<button class="w-full flex items-center justify-center rounded-lg h-12 px-6 bg-[#cedfed] text-slate-900 text-base font-semibold hover:bg-[#b8d7ea] transition-colors">
+              Request a Quote
+            </button>
+<button class="w-full flex items-center justify-center rounded-lg h-12 px-6 bg-gray-100 text-slate-700 text-base font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled="">
+              Connect with a Local Architect Professional
+            </button>
+</div>
+</div>
+</aside>
+</div>
+<script>
+      const cartIcon = document.getElementById("cart-icon");
+      const cartDrawer = document.getElementById("cart-drawer");
+      const closeDrawerButton = document.getElementById("close-drawer");
+      const drawerOverlay = document.getElementById("drawer-overlay");
+      function openDrawer() {
+        cartDrawer.classList.add("open");
+        drawerOverlay.classList.add("open");
+        document.body.style.overflow = 'hidden'; // Prevent background scroll
+      }
+      function closeDrawer() {
+        cartDrawer.classList.remove("open");
+        drawerOverlay.classList.remove("open");
+        document.body.style.overflow = '';
+      }
+      cartIcon.addEventListener("click", openDrawer);
+      closeDrawerButton.addEventListener("click", closeDrawer);
+      drawerOverlay.addEventListener("click", closeDrawer);
+      // Example: Determine if user came via referral (replace with actual logic)
+      const isReferred = new URLSearchParams(window.location.search).has('ref');
+      const connectButton = cartDrawer.querySelector('button:disabled'); // Target the disabled button
+      if (connectButton && !isReferred) {
+        // Enable the button if not referred
+        // connectButton.disabled = false;
+        // For this example, we'll keep it disabled to match the prompt if no 'ref' param
+      } else if (connectButton && isReferred) {
+        // Hide if referred, or keep disabled
+        // connectButton.classList.add('hidden');
+      }
+    </script>
+
+</body></html>

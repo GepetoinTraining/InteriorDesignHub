@@ -1,0 +1,135 @@
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B600%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<title>Stitch Design - User Management</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+    .form-select {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.5rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      padding-right: 2.5rem;
+      -webkit-print-color-adjust: exact;
+      color-adjust: exact;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 font-inter text-slate-900">
+<div class="relative flex size-full min-h-screen flex-col group/design-root overflow-x-hidden" style="--select-button-svg: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27rgb(96,118,138)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z%27%3e%3c/path%3e%3c/svg%3e'); font-family: Inter, &quot;Noto Sans&quot;, sans-serif;">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 bg-white px-6 md:px-10 py-3 shadow-sm">
+<div class="flex items-center gap-3 text-slate-800">
+<div class="size-8 text-blue-600">
+<svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-slate-900 text-xl font-bold leading-tight tracking-[-0.015em]">Stitch Design</h2>
+</div>
+<div class="flex items-center gap-4">
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-600 hover:text-blue-600 text-sm font-medium leading-normal transition-colors" href="#">Dashboard</a>
+<a class="text-slate-600 hover:text-blue-600 text-sm font-medium leading-normal transition-colors" href="#">Leads</a>
+<a class="text-slate-600 hover:text-blue-600 text-sm font-medium leading-normal transition-colors" href="#">Clients</a>
+<a class="text-slate-600 hover:text-blue-600 text-sm font-medium leading-normal transition-colors" href="#">Projects</a>
+<a class="text-slate-600 hover:text-blue-600 text-sm font-medium leading-normal transition-colors" href="#">Reports</a>
+<a class="text-blue-600 font-semibold text-sm leading-normal" href="#">Admin</a>
+</nav>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border border-slate-200" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDfZBEgEkl2foY2lq9n0JXlCUsTeXG70z086vbn_h2m5TrRfG8mZnesQnojk427orVRSyHr6rVgsl8Q82u-hnvG6Gn5GO2nCtJeo5u6d-BbIMbfcJF7rBsmd9AY3EU7TYeORz0jf5KvLDGL64c9-AnIF-TYd8cD2NmyBTe6p6DwJoxlrZPq6r4UngjIWqNot220MZKsQGMxHShPYcV5YfRRiSrjifC8sTw_OwDEJ6ibeI63mZSykP0qKJfMKbsU24de6QFC-1Fq-4qB");'></div>
+</div>
+</header>
+<main class="flex-1 px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+<div class="max-w-3xl mx-auto">
+<div class="mb-8">
+<h1 class="text-slate-900 text-3xl font-bold leading-tight tracking-tight">User Management</h1>
+<p class="text-slate-600 text-base font-normal leading-normal mt-1">Create, edit, and manage user accounts and permissions.</p>
+</div>
+<div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+<h2 class="text-slate-800 text-xl font-semibold mb-6">Create New User</h2>
+<form class="space-y-6">
+<div>
+<label class="block text-sm font-medium text-slate-700 pb-1.5" for="username">Username</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 focus:outline-0 focus:ring-2 focus:ring-blue-500 border border-slate-300 bg-white focus:border-blue-500 h-11 placeholder:text-slate-400 p-3 text-sm font-normal leading-normal" id="username" name="username" placeholder="Enter username" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 pb-1.5" for="email">Email</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 focus:outline-0 focus:ring-2 focus:ring-blue-500 border border-slate-300 bg-white focus:border-blue-500 h-11 placeholder:text-slate-400 p-3 text-sm font-normal leading-normal" id="email" name="email" placeholder="Enter email" type="email"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 pb-1.5" for="role">Role</label>
+<select class="form-select appearance-none block w-full rounded-lg text-slate-900 focus:outline-0 focus:ring-2 focus:ring-blue-500 border border-slate-300 bg-white focus:border-blue-500 h-11 placeholder:text-slate-400 px-3 py-2 text-sm font-normal leading-normal" id="role" name="role">
+<option disabled="" selected="" value="">Select role</option>
+<option value="admin">Admin</option>
+<option value="salesperson">Salesperson</option>
+<option value="buyer">Buyer</option>
+<option value="financial">Financial</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 pb-1.5" for="password">Password</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 focus:outline-0 focus:ring-2 focus:ring-blue-500 border border-slate-300 bg-white focus:border-blue-500 h-11 placeholder:text-slate-400 p-3 text-sm font-normal leading-normal" id="password" name="password" placeholder="Enter password" type="password"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 pb-1.5" for="confirm-password">Confirm Password</label>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-900 focus:outline-0 focus:ring-2 focus:ring-blue-500 border border-slate-300 bg-white focus:border-blue-500 h-11 placeholder:text-slate-400 p-3 text-sm font-normal leading-normal" id="confirm-password" name="confirm-password" placeholder="Confirm password" type="password"/>
+</div>
+<div class="flex justify-end pt-2">
+<button class="flex min-w-[100px] items-center justify-center overflow-hidden rounded-lg h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold leading-normal tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" type="submit">
+<span class="truncate">Create User</span>
+</button>
+</div>
+</form>
+</div>
+<div class="mt-12 bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+<h2 class="text-slate-800 text-xl font-semibold mb-6">Existing Users</h2>
+<div class="overflow-x-auto">
+<table class="min-w-full divide-y divide-slate-200">
+<thead class="bg-slate-50">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" scope="col">Username</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" scope="col">Email</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" scope="col">Role</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider" scope="col">Actions</th>
+</tr>
+</thead>
+<tbody class="bg-white divide-y divide-slate-200">
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">JaneDoe</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">jane.doe@example.com</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">Admin</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+<a class="text-blue-600 hover:text-blue-800" href="#">Edit</a>
+<a class="text-red-600 hover:text-red-800" href="#">Delete</a>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">JohnSmith</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">john.smith@example.com</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">Salesperson</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+<a class="text-blue-600 hover:text-blue-800" href="#">Edit</a>
+<a class="text-red-600 hover:text-red-800" href="#">Delete</a>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">AliceGreen</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">alice.green@example.com</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">Buyer</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+<a class="text-blue-600 hover:text-blue-800" href="#">Edit</a>
+<a class="text-red-600 hover:text-red-800" href="#">Delete</a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>

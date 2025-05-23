@@ -1,0 +1,202 @@
+<html><head>
+<meta charset="utf-8"/>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Sharp" rel="stylesheet"/>
+<title>Stitch Design - Budgets</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+    .active-nav-link p {
+      color: #1F2937;font-weight: 600;}
+    .active-nav-link {
+      border-color: #c5d9eb;background-color: #f0f5fa;}
+    .nav-link:hover p {
+      color: #374151;}
+    .nav-link:hover {
+      background-color: #f9fafb;}
+    .status-draft {
+      background-color: #FEF3C7;color: #92400E;padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .status-sent {
+      background-color: #DBEAFE;color: #1E40AF;padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+     .status-approved {
+      background-color: #D1FAE5;color: #065F46;padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body class="bg-gray-50" style='font-family: Inter, "Noto Sans", sans-serif;'>
+<div class="relative flex size-full min-h-screen flex-col group/design-root overflow-x-hidden">
+<div class="flex h-full grow">
+<aside class="flex flex-col w-80 bg-white border-r border-gray-200">
+<div class="p-6 border-b border-gray-200">
+<img alt="Stitch Design Logo" class="h-10 w-auto mx-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWdq2lwY3OMHsH9n0oiQU7Uzn-rXsS0bzJQWGmhS54nDuNGZAdZRpwDYw6QlNhw3bTqeDc2EDg6NOh6yJiiHM6klOxDk3ZSu5d4zhhiBqpf1kijzVlum0HC5CsRZkDbm6LzzA-sH6wNn-XFGOC8KifqApr9Q-WzLfw00ZAvcWSCSzgNI3WQ64YDLSZ2NZQBPlm01UKUdCKT_BTA169ZpstgN9H90cOTQPXTcrVuJxvFauJQQRKWUuXJ6DoVEUW-LXYgovcxy6CnpYT"/>
+</div>
+<nav class="flex-1 space-y-1 p-4">
+<a class="nav-link flex items-center gap-3 rounded-md px-3 py-2.5 text-gray-600 hover:bg-gray-100" href="#">
+<span class="material-icons-sharp text-xl">dashboard</span>
+<p class="text-sm font-medium">Dashboard</p>
+</a>
+<a class="nav-link flex items-center gap-3 rounded-md px-3 py-2.5 text-gray-600 hover:bg-gray-100" href="#">
+<span class="material-icons-sharp text-xl">leaderboard</span>
+<p class="text-sm font-medium">Leads</p>
+</a>
+<a class="active-nav-link flex items-center gap-3 rounded-md px-3 py-2.5 text-gray-800 bg-gray-100" href="#">
+<span class="material-icons-sharp text-xl">request_quote</span>
+<p class="text-sm font-medium">Budgets</p>
+</a>
+<a class="nav-link flex items-center gap-3 rounded-md px-3 py-2.5 text-gray-600 hover:bg-gray-100" href="#">
+<span class="material-icons-sharp text-xl">shopping_cart</span>
+<p class="text-sm font-medium">Orders</p>
+</a>
+<a class="nav-link flex items-center gap-3 rounded-md px-3 py-2.5 text-gray-600 hover:bg-gray-100" href="#">
+<span class="material-icons-sharp text-xl">store</span>
+<p class="text-sm font-medium">Suppliers</p>
+</a>
+</nav>
+<div class="p-4 border-t border-gray-200">
+<button class="flex w-full items-center justify-center gap-2 rounded-lg h-10 px-4 bg-[#c5d9eb] text-gray-800 text-sm font-semibold hover:bg-opacity-90 transition-colors">
+<span class="material-icons-sharp text-xl">add_circle_outline</span>
+<span>New Budget</span>
+</button>
+</div>
+</aside>
+<main class="flex-1 flex">
+<div class="w-[320px] bg-white border-r border-gray-200 flex flex-col">
+<div class="p-6 border-b border-gray-200">
+<h2 class="text-xl font-semibold text-gray-800">Budgets</h2>
+</div>
+<div class="flex-1 overflow-y-auto">
+<div class="divide-y divide-gray-100">
+<div class="p-4 hover:bg-gray-50 cursor-pointer border-l-4 border-l-[#c5d9eb] bg-gray-50">
+<div class="flex items-center justify-between">
+<p class="text-gray-800 text-sm font-medium">Budget #0001</p>
+<p class="text-gray-700 text-sm font-medium">$5,000</p>
+</div>
+<p class="text-gray-500 text-xs mt-0.5">Order #12345</p>
+<span class="status-draft mt-1 inline-block">Draft</span>
+</div>
+<div class="p-4 hover:bg-gray-50 cursor-pointer border-l-4 border-transparent">
+<div class="flex items-center justify-between">
+<p class="text-gray-800 text-sm font-medium">Budget #0002</p>
+<p class="text-gray-700 text-sm font-medium">$7,500</p>
+</div>
+<p class="text-gray-500 text-xs mt-0.5">Order #67890</p>
+<span class="status-sent mt-1 inline-block">Sent</span>
+</div>
+<div class="p-4 hover:bg-gray-50 cursor-pointer border-l-4 border-transparent">
+<div class="flex items-center justify-between">
+<p class="text-gray-800 text-sm font-medium">Budget #0003</p>
+<p class="text-gray-700 text-sm font-medium">$3,200</p>
+</div>
+<p class="text-gray-500 text-xs mt-0.5">Order #11223</p>
+<span class="status-approved mt-1 inline-block">Approved</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1 p-8 overflow-y-auto bg-gray-50">
+<div class="max-w-4xl mx-auto">
+<header class="mb-8 pb-6 border-b border-gray-200">
+<div class="flex items-center justify-between">
+<div>
+<h1 class="text-3xl font-bold text-gray-900">Budget #0001</h1>
+<p class="text-gray-500 text-sm mt-1">Budget for Order #12345</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 rounded-lg h-10 px-4 border border-gray-300 bg-white text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors">
+<span class="material-icons-sharp text-lg">edit</span>
+                    Edit Budget
+                  </button>
+<button class="flex items-center gap-2 rounded-lg h-10 px-4 bg-[#c5d9eb] text-gray-800 text-sm font-semibold hover:bg-opacity-90 transition-colors">
+<span class="material-icons-sharp text-lg">send</span>
+                    Send to Supplier
+                  </button>
+</div>
+</div>
+</header>
+<section class="mb-8 p-6 bg-white rounded-lg shadow-sm">
+<h3 class="text-lg font-semibold text-gray-800 mb-4">Budget Details</h3>
+<dl class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+<div class="py-3 border-b border-gray-100">
+<dt class="text-xs text-gray-500 uppercase font-medium">Order Number</dt>
+<dd class="text-sm text-gray-800 mt-0.5">#12345</dd>
+</div>
+<div class="py-3 border-b border-gray-100">
+<dt class="text-xs text-gray-500 uppercase font-medium">Supplier</dt>
+<dd class="text-sm text-gray-800 mt-0.5">Supplier A</dd>
+</div>
+<div class="py-3 border-b border-gray-100">
+<dt class="text-xs text-gray-500 uppercase font-medium">Budget Amount</dt>
+<dd class="text-sm text-gray-800 font-semibold mt-0.5">$5,000.00</dd>
+</div>
+<div class="py-3 border-b border-gray-100">
+<dt class="text-xs text-gray-500 uppercase font-medium">Status</dt>
+<dd class="text-sm text-gray-800 mt-0.5"><span class="status-draft">Draft</span></dd>
+</div>
+</dl>
+</section>
+<section class="p-6 bg-white rounded-lg shadow-sm">
+<h3 class="text-lg font-semibold text-gray-800 mb-4">Items</h3>
+<div class="overflow-x-auto @container">
+<table class="min-w-full divide-y divide-gray-200">
+<thead class="bg-gray-50">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-120" scope="col">Item</th>
+<th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-240" scope="col">Quantity</th>
+<th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-360" scope="col">Unit Price</th>
+<th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-480" scope="col">Total Price</th>
+</tr>
+</thead>
+<tbody class="bg-white divide-y divide-gray-200">
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-120">Sofa</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-240">1</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-360">$2,000.00</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-480">$2,000.00</td>
+</tr>
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-120">Coffee Table</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-240">1</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-360">$500.00</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-480">$500.00</td>
+</tr>
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-120">Rug</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-240">1</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-360">$2,500.00</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-480">$2,500.00</td>
+</tr>
+</tbody>
+<tfoot class="bg-gray-50">
+<tr>
+<td class="px-6 py-3 text-right text-sm font-medium text-gray-700 uppercase" colspan="3">Total Budget</td>
+<td class="px-6 py-3 text-right text-sm font-bold text-gray-900">$5,000.00</td>
+</tr>
+</tfoot>
+</table>
+</div>
+<style>
+                @container(max-width:120px){.table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-120{display: none;}}
+                @container(max-width:240px){.table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-240{display: none;}}
+                @container(max-width:360px){.table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-360{display: none;}}
+                @container(max-width:480px){.table-f616d76d-4485-4ffe-b602-f6487f83fa58-column-480{display: none;}}
+              </style>
+</section>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>
