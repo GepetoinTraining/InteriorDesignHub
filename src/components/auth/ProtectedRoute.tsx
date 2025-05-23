@@ -1,35 +1,41 @@
 
 import React from 'react';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth, UserRole } from '../../contexts/AuthContext'; // Import UserRole
+import { useHasPermission } from '../../hooks/useHasPermission'; // Import useHasPermission
 
 interface ProtectedRouteProps {
-  // Changed from JSX.Element to React.ReactNode for greater flexibility.
-  // This addresses the error in App.tsx where <ProtectedRoute> was reported
-  // to receive multiple children, even though it appeared to receive a single valid element.
-  // React.ReactNode is more permissive and suitable here as the component just renders its children.
   children: React.ReactNode;
+  requiredRoles?: UserRole[]; // Add optional requiredRoles prop
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRoles }) => {
+  const { t } = useTranslation(); // Initialize useTranslation
   const { currentUser, isLoading } = useAuth();
   const location = useLocation();
+  const hasRequiredPermission = requiredRoles ? useHasPermission(requiredRoles) : true; // Check permission if requiredRoles is provided
 
   if (isLoading) {
     // You might want to show a global loading spinner here instead of just text
     return (
         <div className="flex items-center justify-center min-h-screen">
-            <p className="text-slate-700 text-lg">Loading authentication status...</p>
+            <p className="text-slate-700 text-lg">{t('protectedRoute.loadingAuthStatus')}</p>
         </div>
     );
   }
 
   if (!currentUser) {
-    // Redirect them to the /login page, but save the current location they were
-    // trying to go to when they were redirected. This allows us to send them
-    // along to that page after they login, which is a nicer user experience
-    // than dropping them off on the home page.
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // If roles are required and user doesn't have permission, redirect
+  if (requiredRoles && !hasRequiredPermission) {
+    // TODO: Consider a dedicated "Unauthorized" page later if needed
+    // For now, redirecting to home.
+    // A notification could also be shown here.
+    console.warn(`User does not have required roles: ${requiredRoles.join(', ')}. Redirecting.`);
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   return children;

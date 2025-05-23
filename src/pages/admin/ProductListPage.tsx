@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 import * as productService from '../../services/productService';
 import { Product } from '../../types/product';
 import Button from '../../components/ui/Button';
@@ -9,6 +10,7 @@ import Input from '../../components/ui/Input';
 import Icon from '../../components/ui/Icon';
 
 const ProductListPage: React.FC = () => {
+  const { t } = useTranslation(); // Initialize useTranslation
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +25,7 @@ const ProductListPage: React.FC = () => {
       setProducts(data);
     } catch (err) {
       console.error("Failed to fetch products", err);
-      setError(err instanceof Error ? err.message : "An unknown error occurred.");
+      setError(err instanceof Error ? err.message : t('productListPage.errorUnknown'));
     } finally {
       setIsLoading(false);
     }
@@ -34,7 +36,7 @@ const ProductListPage: React.FC = () => {
   }, []);
 
   const handleDelete = async (productId: string, productName: string) => {
-    if (window.confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+    if (window.confirm(t('productListPage.confirmDeleteProductMessage', { productName }))) {
       setIsLoading(true); // Consider a more granular loading state for delete
       try {
         await productService.deleteProduct(productId);
@@ -43,7 +45,7 @@ const ProductListPage: React.FC = () => {
         // Optionally show a success message
       } catch (err) {
         console.error(`Failed to delete product ${productId}`, err);
-        setError(err instanceof Error ? err.message : "Could not delete product.");
+        setError(err instanceof Error ? err.message : t('productListPage.errorCouldNotDeleteProduct'));
       } finally {
         setIsLoading(false);
       }
@@ -63,7 +65,7 @@ const ProductListPage: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center flex-1 p-4 text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-primary)] mb-4"></div>
-        <p className="text-slate-700 text-lg">Loading Products...</p>
+        <p className="text-slate-700 text-lg">{t('productListPage.loadingProducts')}</p>
       </div>
     );
   }
@@ -72,10 +74,10 @@ const ProductListPage: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center flex-1 p-4 text-center">
         <Icon iconName="error_outline" className="text-red-500 text-5xl mb-4" />
-        <p className="text-slate-800 text-xl font-semibold mb-2">Failed to load products</p>
+        <p className="text-slate-800 text-xl font-semibold mb-2">{t('productListPage.failedToLoadProducts')}</p>
         <p className="text-slate-600 text-sm mb-6">{error}</p>
         <Button onClick={fetchProductsData} variant="primary">
-          Try Again
+          {t('productListPage.tryAgainButton')}
         </Button>
       </div>
     );
@@ -85,12 +87,12 @@ const ProductListPage: React.FC = () => {
     <div className="flex flex-col flex-1 p-4 sm:p-6 lg:p-8 h-full overflow-hidden">
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-slate-900 text-2xl sm:text-3xl font-bold leading-tight">Product Catalog</h1>
-          <p className="text-slate-500 text-sm sm:text-base">Manage your inventory and product details.</p>
+          <h1 className="text-slate-900 text-2xl sm:text-3xl font-bold leading-tight">{t('productListPage.title')}</h1>
+          <p className="text-slate-500 text-sm sm:text-base">{t('productListPage.subtitle')}</p>
         </div>
         <Button onClick={() => navigate('/admin/products/new')} className="bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)]">
           <Icon iconName="add" className="mr-2 text-base" />
-          New Product
+          {t('productListPage.buttonNewProduct')}
         </Button>
       </div>
 
@@ -100,7 +102,7 @@ const ProductListPage: React.FC = () => {
         </div>
         <Input
           type="text"
-          placeholder="Search by name, SKU, or category..."
+          placeholder={t('productListPage.placeholderSearch')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="pl-10 w-full"
@@ -108,17 +110,17 @@ const ProductListPage: React.FC = () => {
       </div>
       
       {isLoading && products.length > 0 && (
-         <div className="text-center py-4 text-slate-600">Updating product list...</div>
+         <div className="text-center py-4 text-slate-600">{t('productListPage.updatingProductList')}</div>
       )}
 
       <div className="flex-1 overflow-x-auto custom-scrollbar">
         {filteredProducts.length === 0 && !isLoading ? (
           <div className="text-center py-10 text-slate-500">
             <Icon iconName="inventory_2" className="text-4xl mb-2" />
-            <p>No products found{searchTerm && ' matching your search'}.</p>
+            <p>{t('productListPage.messageNoProductsFound')}{searchTerm && t('productListPage.messageMatchingSearchSuffix')}.</p>
             {!searchTerm && (
                 <Button onClick={() => navigate('/admin/products/new')} className="mt-4">
-                    Add Your First Product
+                    {t('productListPage.buttonAddFirstProduct')}
                 </Button>
             )}
           </div>
@@ -127,12 +129,12 @@ const ProductListPage: React.FC = () => {
             <table className="min-w-full divide-y divide-slate-200">
               <thead className="bg-slate-50">
                 <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Product</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden sm:table-cell">Category</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden md:table-cell">SKU</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Price</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden lg:table-cell">Stock</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{t('productListPage.tableHeaderProduct')}</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden sm:table-cell">{t('productListPage.tableHeaderCategory')}</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden md:table-cell">{t('productListPage.tableHeaderSku')}</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{t('productListPage.tableHeaderPrice')}</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden lg:table-cell">{t('productListPage.tableHeaderStock')}</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{t('productListPage.tableHeaderActions')}</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-slate-200">
@@ -164,11 +166,11 @@ const ProductListPage: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       {/* Fix: Removed unsupported 'size' prop. Sizing is handled by className 'h-8 text-xs px-2 py-1'. */}
                       <Button variant="outlined" onClick={() => navigate(`/admin/products/edit/${product.id}`)} className="mr-2 !h-8 !text-xs !px-2 !py-1">
-                        <Icon iconName="edit" className="text-xs mr-1" /> Edit
+                        <Icon iconName="edit" className="text-xs mr-1" /> {t('productListPage.buttonEdit')}
                       </Button>
                       {/* Fix: Removed unsupported 'size' prop. Sizing is handled by className 'h-8 text-xs px-2 py-1'. */}
                       <Button variant="outlined" onClick={() => handleDelete(product.id, product.name)} className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700 !h-8 !text-xs !px-2 !py-1">
-                         <Icon iconName="delete" className="text-xs mr-1" /> Delete
+                         <Icon iconName="delete" className="text-xs mr-1" /> {t('productListPage.buttonDelete')}
                       </Button>
                     </td>
                   </tr>

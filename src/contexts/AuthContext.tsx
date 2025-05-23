@@ -5,12 +5,14 @@ import * as authService from '../services/authService'; // authService now uses 
 import { getFunctions, httpsCallable, HttpsCallableResult } from 'firebase/functions';
 
 
-// Define UserRole enum to match backend (ADMIN, DESIGNER, USER)
+// Define UserRole enum to match backend
 export enum UserRole {
   ADMIN = "ADMIN",
-  DESIGNER = "DESIGNER",
+  VENDEDOR = "VENDEDOR",
+  COMPRADOR = "COMPRADOR",
+  FINANCEIRO = "FINANCEIRO",
+  CLIENTE_FINAL = "CLIENTE_FINAL",
   USER = "USER",
-  // Add other roles if necessary, ensure they match Prisma's UserRole enum
 }
 
 export interface User {

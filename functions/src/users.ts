@@ -101,7 +101,8 @@ export const updateUserRole = functions.https.onCall(async (data, context) => {
     throw new functions.https.HttpsError("invalid-argument", "Valid targetUserId is required.");
   }
   if (!newRole || typeof newRole !== 'string' || !Object.values(UserRole).includes(newRole as UserRole)) {
-    throw new functions.https.HttpsError("invalid-argument", "Valid newRole is required (ADMIN, DESIGNER, USER).");
+    const validRoles = Object.values(UserRole).join(", ");
+    throw new functions.https.HttpsError("invalid-argument", `Valid newRole is required. Must be one of: ${validRoles}.`);
   }
   if (!tenantId || typeof tenantId !== 'string') {
     throw new functions.https.HttpsError("invalid-argument", "Valid tenantId is required.");

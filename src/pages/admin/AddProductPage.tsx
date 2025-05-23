@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 import ProductForm from '../../components/products/ProductForm';
 import * as productService from '../../services/productService';
 import { Product } from '../../types/product';
@@ -8,6 +9,7 @@ import Icon from '../../components/ui/Icon';
 import Button from '../../components/ui/Button';
 
 const AddProductPage: React.FC = () => {
+  const { t } = useTranslation(); // Initialize useTranslation
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +23,7 @@ const AddProductPage: React.FC = () => {
       navigate('/admin/products');
     } catch (err) {
       console.error("Failed to add product", err);
-      setError(err instanceof Error ? err.message : "An unknown error occurred while adding the product.");
+      setError(err instanceof Error ? err.message : t('addProductPage.errorAddingProduct'));
       setIsLoading(false);
     }
     // setIsLoading(false) is handled in the finally block of the try-catch if navigation happens
@@ -30,15 +32,15 @@ const AddProductPage: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">Add New Product</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-800">{t('addProductPage.title')}</h1>
         <Button variant="secondary" onClick={() => navigate('/admin/products')}>
-            <Icon iconName="arrow_back" className="mr-2 text-sm"/> Back to List
+            <Icon iconName="arrow_back" className="mr-2 text-sm"/> {t('addProductPage.backToListButton')}
         </Button>
       </div>
       
       {error && (
         <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
-          <strong className="font-bold">Error: </strong>
+          <strong className="font-bold">{t('addProductPage.errorMessagePrefix')}</strong>
           <span className="block sm:inline">{error}</span>
         </div>
       )}
@@ -47,7 +49,7 @@ const AddProductPage: React.FC = () => {
         <ProductForm 
           onSubmit={handleSubmit} 
           isLoading={isLoading}
-          submitButtonText="Create Product"
+          submitButtonText={t('addProductPage.createProductButton')}
           onCancel={() => navigate('/admin/products')}
         />
       </div>

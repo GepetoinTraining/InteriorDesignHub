@@ -1,6 +1,7 @@
 
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 import { useAuth } from '../contexts/AuthContext';
 import StatCard from '../components/dashboard/StatCard';
 import Icon from '../components/ui/Icon';
@@ -14,6 +15,7 @@ import Button from '../components/ui/Button';
 import { useNotifier } from '../hooks/useNotifier'; // Updated import path
 
 const DashboardPage: React.FC = () => {
+  const { t } = useTranslation(); // Initialize useTranslation
   const { currentUser } = useAuth();
   const [salesData, setSalesData] = useState<DashboardMetric[]>([]);
   const [leadData, setLeadData] = useState<DashboardMetric[]>([]);
@@ -75,30 +77,30 @@ const DashboardPage: React.FC = () => {
       <div className="layout-content-container flex flex-col max-w-screen-xl w-full">
         <div className="flex flex-wrap justify-between items-center gap-4 p-4 mb-6">
           <div className="flex flex-col gap-1">
-            <h1 className="text-slate-900 text-3xl sm:text-4xl font-bold leading-tight">Dashboard</h1>
+            <h1 className="text-slate-900 text-3xl sm:text-4xl font-bold leading-tight">{t('dashboardTitle')}</h1>
             <p className="text-slate-500 text-sm sm:text-base font-normal leading-normal">
-              Overview of key performance indicators and trends for {currentUser?.name || currentUser?.email || 'User'}.
+              {t('dashboardSubtitle', { userName: currentUser?.name || currentUser?.email || 'User' })}
             </p>
           </div>
           <button className="bg-[var(--color-primary-light)] hover:bg-[var(--color-primary)] hover:text-white text-[var(--color-primary-dark)] font-semibold px-4 py-2 rounded-lg shadow-sm transition-colors duration-150 flex items-center gap-2">
             <Icon iconName="add" />
-            Add Widget
+            {t('addWidget')}
           </button>
         </div>
 
         {/* Temporary Test Buttons for Notifications */}
         <div className="mb-6 p-4 bg-slate-100 rounded-lg shadow">
-          <h3 className="text-slate-700 font-semibold mb-2">Test Notifications (Temporary)</h3>
+          <h3 className="text-slate-700 font-semibold mb-2">{t('testNotificationsTemporary')}</h3>
           <div className="flex flex-wrap gap-3">
-            <Button onClick={() => addNotification('This is a success message!', 'success')} variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-200">Show Success</Button>
-            <Button onClick={() => addNotification('This is an error message!', 'error')} variant="secondary" className="bg-red-100 text-red-700 hover:bg-red-200">Show Error</Button>
-            <Button onClick={() => addNotification('This is an info message.', 'info')} variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-200">Show Info</Button>
+            <Button onClick={() => addNotification('This is a success message!', 'success')} variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-200">{t('showSuccess')}</Button>
+            <Button onClick={() => addNotification('This is an error message!', 'error')} variant="secondary" className="bg-red-100 text-red-700 hover:bg-red-200">{t('showError')}</Button>
+            <Button onClick={() => addNotification('This is an info message.', 'info')} variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-200">{t('showInfo')}</Button>
           </div>
         </div>
 
         {/* Sales Performance Section */}
         <section className="bg-white p-6 rounded-xl shadow-lg col-span-1 md:col-span-2 mb-6">
-          <h2 className="text-slate-800 text-xl font-semibold leading-tight mb-4">Sales Performance</h2>
+          <h2 className="text-slate-800 text-xl font-semibold leading-tight mb-4">{t('salesPerformance')}</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {salesData.map(metric => (
               <StatCard
@@ -116,7 +118,7 @@ const DashboardPage: React.FC = () => {
 
         {/* Lead Management Section */}
         <section className="bg-white p-6 rounded-xl shadow-lg col-span-1 md:col-span-2 mb-6">
-          <h2 className="text-slate-800 text-xl font-semibold leading-tight mb-4">Lead Management</h2>
+          <h2 className="text-slate-800 text-xl font-semibold leading-tight mb-4">{t('leadManagement')}</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {leadData.map(metric => (
               <StatCard
@@ -134,7 +136,7 @@ const DashboardPage: React.FC = () => {
 
         {/* Financial Overview Section */}
         <section className="bg-white p-6 rounded-xl shadow-lg col-span-1 md:col-span-2">
-          <h2 className="text-slate-800 text-xl font-semibold leading-tight mb-4">Financial Overview</h2>
+          <h2 className="text-slate-800 text-xl font-semibold leading-tight mb-4">{t('financialOverview')}</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {financialData.map(metric => (
               <StatCard

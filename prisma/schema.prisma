@@ -11,8 +11,11 @@ datasource db {
 
 enum Role {
   ADMIN
-  DESIGNER
-  USER
+  VENDEDOR
+  COMPRADOR
+  FINANCEIRO
+  CLIENTE_FINAL
+  USER 
 }
 
 enum LeadStatus {

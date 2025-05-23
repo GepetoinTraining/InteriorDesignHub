@@ -39,7 +39,7 @@ import AdminBiDashboardPage from './pages/admin/AdminBiDashboardPage';
 import InstallationChecklistPage from './pages/InstallationChecklistPage';
 import OrdersPage from './pages/OrdersPage'; // Added OrdersPage import
 import RegisterPage from './pages/RegisterPage';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, UserRole } from './contexts/AuthContext'; // Import UserRole
 import { TenantProvider } from './contexts/TenantContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -137,7 +137,7 @@ const App: React.FC = () => {
               <Route 
                 path="/admin/products"
                 element={
-                  <ProtectedRoute> 
+                  <ProtectedRoute requiredRoles={[UserRole.ADMIN]}> 
                     <AuthenticatedLayout>
                       <ProductListPage />
                     </AuthenticatedLayout>
@@ -147,7 +147,7 @@ const App: React.FC = () => {
               <Route 
                 path="/admin/products/new"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRoles={[UserRole.ADMIN]}>
                     <AuthenticatedLayout>
                       <AddProductPage />
                     </AuthenticatedLayout>
@@ -157,7 +157,7 @@ const App: React.FC = () => {
               <Route 
                 path="/admin/products/edit/:productId"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRoles={[UserRole.ADMIN]}>
                     <AuthenticatedLayout>
                       <EditProductPage />
                     </AuthenticatedLayout>
@@ -167,7 +167,7 @@ const App: React.FC = () => {
                <Route 
                 path="/admin/stock" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRoles={[UserRole.ADMIN]}>
                     <AuthenticatedLayout>
                       <StockManagementPage />
                     </AuthenticatedLayout>
@@ -177,7 +177,7 @@ const App: React.FC = () => {
                <Route 
                 path="/admin/user-management"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRoles={[UserRole.ADMIN]}>
                     <AuthenticatedLayout>
                       <UserManagementPage />
                     </AuthenticatedLayout>
@@ -187,7 +187,7 @@ const App: React.FC = () => {
               <Route 
                 path="/admin/bi-dashboard"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiredRoles={[UserRole.ADMIN]}>
                     <AuthenticatedLayout>
                       <AdminBiDashboardPage />
                     </AuthenticatedLayout>

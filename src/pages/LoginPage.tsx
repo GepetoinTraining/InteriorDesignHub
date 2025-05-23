@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Logo from '../components/ui/Logo';
 import { useAuth } from '../contexts/AuthContext';
 
 const LoginPage: React.FC = () => {
+  const { t } = useTranslation(); // Initialize useTranslation
   const [email, setEmail] = useState(''); // Changed from username to email
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +63,7 @@ const LoginPage: React.FC = () => {
           <p className="text-slate-600 mt-1">Access your design projects and leads.</p>
         </div>
         <div className="bg-white p-8 rounded-xl shadow-xl border border-slate-200">
-          <h2 className="text-2xl font-semibold text-center text-slate-900 mb-6">Welcome Back</h2>
+          <h2 className="text-2xl font-semibold text-center text-slate-900 mb-6">{t('loginPageTitle')}</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1.5" htmlFor="email">
@@ -101,7 +103,7 @@ const LoginPage: React.FC = () => {
               </p>
             )}
             <Button type="submit" fullWidth isLoading={isLoading} disabled={isLoading || !email || !password}>
-              {isLoading ? 'Logging in...' : 'Login'}
+              {isLoading ? t('loggingIn') : t('loginButton')}
             </Button>
             {/* <div className="mt-6 text-center">
               <a href="/forgottenpassword.html" className="text-sm text-[#0b80ee] hover:text-[#0069cc] hover:underline font-medium">
@@ -111,7 +113,7 @@ const LoginPage: React.FC = () => {
           </form>
         </div>
         <p className="mt-8 text-center text-xs text-slate-500">
-          © 2024 Stitch Design. All rights reserved.
+            © 2024 Stitch Design. {t('allRightsReserved')}
         </p>
       </div>
     </div>

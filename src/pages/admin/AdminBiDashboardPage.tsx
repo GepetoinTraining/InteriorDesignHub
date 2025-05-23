@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 import { AdminBiDashboardData, BiMetric, ChartDataItem } from '../../types/adminBi';
 import * as adminBiService from '../../services/adminBiService';
 import Icon from '../../components/ui/Icon';
@@ -9,6 +10,7 @@ import ResponsiveBarChart from '../../components/charts/ResponsiveBarChart';
 // Consider adding a PieChart component if needed, or using ResponsiveBarChart for distribution.
 
 const AdminBiDashboardPage: React.FC = () => {
+  const { t } = useTranslation(); // Initialize useTranslation
   const [dashboardData, setDashboardData] = useState<AdminBiDashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +23,7 @@ const AdminBiDashboardPage: React.FC = () => {
         const data = await adminBiService.fetchAdminBiData();
         setDashboardData(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load BI dashboard data.');
+        setError(err instanceof Error ? err.message : t('adminBiDashboardPage.errorLoadingData'));
       } finally {
         setIsLoading(false);
       }
@@ -33,7 +35,7 @@ const AdminBiDashboardPage: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center flex-1 p-4 text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-primary)] mb-4"></div>
-        <p className="text-slate-700 text-lg">Loading Business Intelligence Dashboard...</p>
+        <p className="text-slate-700 text-lg">{t('adminBiDashboardPage.loadingMessage')}</p>
       </div>
     );
   }
@@ -42,9 +44,9 @@ const AdminBiDashboardPage: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center flex-1 p-4 text-center">
         <Icon iconName="error_outline" className="text-red-500 text-5xl mb-4" />
-        <p className="text-slate-800 text-xl font-semibold mb-2">Error Loading Dashboard</p>
-        <p className="text-slate-600 text-sm mb-6">{error || 'Could not retrieve dashboard data.'}</p>
-        <Button onClick={() => window.location.reload()} variant="primary">Try Again</Button>
+        <p className="text-slate-800 text-xl font-semibold mb-2">{t('adminBiDashboardPage.errorTitle')}</p>
+        <p className="text-slate-600 text-sm mb-6">{error || t('adminBiDashboardPage.errorCouldNotRetrieveData')}</p>
+        <Button onClick={() => window.location.reload()} variant="primary">{t('adminBiDashboardPage.tryAgainButton')}</Button>
       </div>
     );
   }
@@ -73,8 +75,8 @@ const AdminBiDashboardPage: React.FC = () => {
   return (
     <div className="flex-1 p-4 sm:p-6 lg:p-8 bg-slate-100">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Admin Business Intelligence</h1>
-        <p className="text-slate-600 mt-1">Key performance indicators and insights for your business.</p>
+        <h1 className="text-3xl font-bold text-slate-900">{t('adminBiDashboardPage.pageTitle')}</h1>
+        <p className="text-slate-600 mt-1">{t('adminBiDashboardPage.pageSubtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -83,14 +85,14 @@ const AdminBiDashboardPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
-          <h2 className="text-xl font-semibold text-slate-800 mb-4">Revenue Over Time</h2>
+          <h2 className="text-xl font-semibold text-slate-800 mb-4">{t('adminBiDashboardPage.chartTitleRevenueOverTime')}</h2>
           <div className="h-72 sm:h-80">
             <ResponsiveLineChart data={revenueOverTime} lineKey="value" xAxisKey="name" lineColor="var(--color-primary)" />
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
-          <h2 className="text-xl font-semibold text-slate-800 mb-4">Project Status Distribution</h2>
+          <h2 className="text-xl font-semibold text-slate-800 mb-4">{t('adminBiDashboardPage.chartTitleProjectStatusDistribution')}</h2>
            <div className="h-72 sm:h-80">
             <ResponsiveBarChart data={projectStatusDistribution} barKey="value" xAxisKey="name" />
             {/* For individual bar colors, you'd typically map through data and render <Bar> components if Recharts supports it directly or use a custom solution.
@@ -103,7 +105,7 @@ const AdminBiDashboardPage: React.FC = () => {
         </div>
         
         <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-200 lg:col-span-2">
-          <h2 className="text-xl font-semibold text-slate-800 mb-4">Client Acquisition Channels</h2>
+          <h2 className="text-xl font-semibold text-slate-800 mb-4">{t('adminBiDashboardPage.chartTitleClientAcquisition')}</h2>
           <div className="h-72 sm:h-80">
             <ResponsiveBarChart data={clientAcquisitionChannels} barKey="value" xAxisKey="name" barColor="var(--color-secondary-dark)" />
           </div>
