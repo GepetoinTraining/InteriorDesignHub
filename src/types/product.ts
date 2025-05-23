@@ -1,6 +1,15 @@
 
 export type ProductCategory = 'Furniture' | 'Decor' | 'Lighting' | 'Textiles' | 'Accessories' | 'Kitchenware' | 'Outdoor' | 'Other';
 
+// Define ProductModelType enum
+export enum ProductModelType {
+  CORTINA = "CORTINA",
+  PERSIANA = "PERSIANA",
+  PAPEL_DE_PAREDE = "PAPEL_DE_PAREDE",
+  SERVICO = "SERVICO",
+  OUTRO = "OUTRO",
+}
+
 export interface ProductVariation {
   id: string;
   name: string; // e.g., "Color", "Size"
@@ -41,4 +50,6 @@ export interface Product {
   dateAdded?: string; 
   lastUpdated?: string; 
   pricingCalculation?: 'manual' | 'apply_tenant_markup'; // How selling price is determined
+  modelType: ProductModelType; // Added modelType
+  preBudgetItemSchemaJson?: any; // Added preBudgetItemSchemaJson, consider a more specific type later
 }

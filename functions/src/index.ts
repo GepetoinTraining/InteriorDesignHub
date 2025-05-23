@@ -19,6 +19,9 @@ export * from "./tenants"; // Added for the new callable Tenant functions
 export * from "./activities"; // Added for the new callable Activity functions
 export * from "./productSales"; // Added for the new callable ProductSale functions
 export * from "./admin"; // Added for admin-related functions
+export * from "./clienteMasters"; // Added for ClienteMaster CRUD functions
+export * from "./visitas"; // Added for Visita CRUD functions
+export * from "./preBudgetItems"; // Added for PreBudgetItem CRUD functions
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
