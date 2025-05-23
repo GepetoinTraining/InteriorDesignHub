@@ -1,0 +1,135 @@
+// Prisma Schema for InteriorDesignHub Hybrid Model
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  DESIGNER
+  USER
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  LOST
+}
+
+enum PreBudgetStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+}
+
+model User {
+  id         String    @id @default(uuid())
+  email      String    @unique
+  name       String
+  role       Role
+  tenantId   String
+  createdAt  DateTime  @default(now())
+
+  tenant     Tenant    @relation(fields: [tenantId], references: [id])
+  activities Activity[]
+  assignedLeads Lead[] @relation("AssignedLeads")
+  preBudgets PreBudget[] @relation("CreatedPreBudgets")
+}
+
+model Tenant {
+  id         String     @id @default(uuid())
+  name       String
+  themeColor String
+  logoUrl    String
+  createdAt  DateTime   @default(now())
+
+  users         User[]
+  products      Product[]
+  leads         Lead[]
+  preBudgets    PreBudget[]
+  
+  productSales  ProductSale[]      // ✅ Added reverse relation
+  leadConversions LeadConversion[] // ✅ Added reverse relation
+}
+
+model Product {
+  id          String        @id @default(uuid())
+  name        String
+  description String
+  price       Float
+  stockQty    Int
+  imageUrl    String
+  tenantId    String
+  createdAt   DateTime      @default(now())
+
+  tenant      Tenant        @relation(fields: [tenantId], references: [id])
+  sales       ProductSale[]
+}
+
+model ProductSale {
+  id          String   @id @default(uuid())
+  productId   String
+  tenantId    String
+  quantity    Int
+  saleAmount  Float
+  saleDate    DateTime @default(now())
+
+  product     Product  @relation(fields: [productId], references: [id])
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model Lead {
+  id             String           @id @default(uuid())
+  name           String
+  email          String
+  phone          String
+  status         LeadStatus
+  assignedUserId String?
+  tenantId       String
+  createdAt      DateTime         @default(now())
+
+  tenant         Tenant           @relation(fields: [tenantId], references: [id])
+  assignedUser   User?            @relation("AssignedLeads", fields: [assignedUserId], references: [id])
+  conversions    LeadConversion[]
+}
+
+model LeadConversion {
+  id          String   @id @default(uuid())
+  leadId      String
+  tenantId    String
+  convertedAt DateTime @default(now())
+
+  lead        Lead     @relation(fields: [leadId], references: [id])
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model PreBudget {
+  id            String          @id @default(uuid())
+  clientName    String
+  projectScope  String
+  estimatedCost Float
+  createdById   String
+  status        PreBudgetStatus
+  tenantId      String
+  createdAt     DateTime        @default(now())
+
+  tenant        Tenant          @relation(fields: [tenantId], references: [id])
+  createdBy     User            @relation("CreatedPreBudgets", fields: [createdById], references: [id])
+}
+
+model Activity {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  metadata  Json
+  timestamp DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+}

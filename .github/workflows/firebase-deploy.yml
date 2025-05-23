@@ -1,0 +1,40 @@
+name: Firebase Deploy
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔹 Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🔹 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  # 🔸 or match your project version
+
+      - name: 🔹 Install dependencies (Root)
+        run: npm ci
+
+      - name: 🔹 Build Frontend
+        run: npm run build
+
+      - name: 🔹 Install dependencies (Functions)
+        working-directory: functions
+        run: npm ci
+
+      - name: 🔹 Build Functions
+        working-directory: functions
+        run: npm run build
+
+      - name: 🔹 Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_INTERIORDESIGNHUBAPP }}"
+          channelId: live

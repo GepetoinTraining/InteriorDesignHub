@@ -54,6 +54,16 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route 
+    path="/" 
+    element={
+      <ProtectedRoute>
+        <AuthenticatedLayout>
+          <DashboardPage />
+        </AuthenticatedLayout>
+      </ProtectedRoute>
+    } 
+  />
+              <Route 
                 path="/" 
                 element={
                   <ProtectedRoute>
