@@ -21,6 +21,9 @@
     },
     "hosting": {
       "port": 5000
+    },
+    "dataconnect": {
+      "dataDir": "dataconnect/.dataconnect/pgliteData"
     }
   },
   "hosting": {
@@ -36,5 +39,8 @@
         "destination": "/index.html"
       }
     ]
+  },
+  "dataconnect": {
+    "source": "dataconnect"
   }
 }
