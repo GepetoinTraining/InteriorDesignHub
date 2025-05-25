@@ -1,31 +1,62 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PreBudgetItem, PreBudgetProductType } from '../types/budget';
-import * as prebudgetService from '../services/prebudgetService';
+import { useTranslation } from 'react-i18next';
+import { PreBudgetItem as LocalPreBudgetItemType, PreBudgetProductType } from '../types/budget'; // Assuming this is the local type for form items
+import { PreBudgetItem, PreBudgetStatus, NewPreBudgetData } from '../types/prebudget'; // Canonical types
+import * as preBudgetService from '../services/preBudgetService';
+import * as preBudgetItemService from '../services/preBudgetItemService'; // Import item service
+import { useAuth } from '../contexts/AuthContext';
+import { useNotifier } from '../hooks/useNotifier';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Icon from '../components/ui/Icon';
 
+// Temporary definition for form's item state to include customInputsJsonString
+interface FormPreBudgetItem extends Omit<LocalPreBudgetItemType, 'id' | 'totalPrice' | 'customInputsJson'> {
+  productName: string;
+  productType: PreBudgetProductType;
+  quantity: number;
+  unitPrice: number;
+  customInputsJsonString?: string; // For textarea input
+  customInputsJson?: any; // Parsed JSON
+  notes?: string; // Item specific notes
+}
+
+// Item that gets stored in the `items` array, with an ID and calculated total
+interface StoredPreBudgetItem extends FormPreBudgetItem {
+    id: string; // Client-side generated ID for list management
+    totalPrice: number;
+}
+
+
 const productTypesArray: PreBudgetProductType[] = ['Curtains', 'Blinds', 'Shades', 'Furniture', 'Decor', 'Lighting', 'Textiles', 'Accessories', 'Flooring', 'Wallpaper', 'Paint', 'Services', 'Other'];
 
 const PreBudgetCreatePage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+  const { notify } = useNotifier();
+
   const [clientName, setClientName] = useState('');
-  const [items, setItems] = useState<PreBudgetItem[]>([]);
-  const [currentItem, setCurrentItem] = useState<Omit<PreBudgetItem, 'id' | 'totalPrice'>>({
+  const [projectScope, setProjectScope] = useState(''); // New state for projectScope
+  const [items, setItems] = useState<StoredPreBudgetItem[]>([]); // Use StoredPreBudgetItem
+  const [currentItem, setCurrentItem] = useState<FormPreBudgetItem>({ // Use FormPreBudgetItem
     productName: '',
-    productType: 'Other', // Default valid type
+    productType: 'Other', 
     quantity: 1,
     unitPrice: 0,
+    customInputsJsonString: '',
+    notes: '',
   });
   const [currentItemTotalPrice, setCurrentItemTotalPrice] = useState('0.00');
   const [discountAmount, setDiscountAmount] = useState('0');
-  const [taxRate, setTaxRate] = useState('0'); // Store as string for input, parse as number/100
-  const [notes, setNotes] = useState('');
+  const [taxRate, setTaxRate] = useState('0'); 
+  const [notes, setNotes] = useState(''); // Overall PreBudget notes
 
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  // Using useNotifier now, so local message state might be less needed or used for specific form errors
+  // const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     const quantity = Number(currentItem.quantity);
@@ -37,30 +68,42 @@ const PreBudgetCreatePage: React.FC = () => {
     }
   }, [currentItem.quantity, currentItem.unitPrice]);
 
-  const handleItemChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleItemChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setCurrentItem(prev => ({
       ...prev,
-      [name]: name === 'quantity' || name === 'unitPrice' ? parseFloat(value) || 0 : value,
+      [name]: (name === 'quantity' || name === 'unitPrice') ? parseFloat(value) || 0 : value,
     }));
   };
 
   const handleAddItem = () => {
     if (!currentItem.productName.trim() || currentItem.quantity <= 0 || currentItem.unitPrice < 0) {
-      setMessage({ type: 'error', text: 'Product name is required. Quantity must be positive, and unit price non-negative.' });
+      notify(t('preBudget.errorItemValidation'), { type: 'error' });
       return;
     }
-    const newItem: PreBudgetItem = {
-      id: `item-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+
+    let parsedCustomJson: any = null;
+    if (currentItem.customInputsJsonString) {
+      try {
+        parsedCustomJson = JSON.parse(currentItem.customInputsJsonString);
+      } catch (error) {
+        notify(t('preBudget.errorInvalidJson'), { type: 'error' });
+        return;
+      }
+    }
+
+    const newItem: StoredPreBudgetItem = {
+      id: `item-${Date.now()}-${Math.random().toString(16).slice(2)}`, // Client-side ID
       ...currentItem,
       quantity: Number(currentItem.quantity),
       unitPrice: Number(currentItem.unitPrice),
       totalPrice: parseFloat(currentItemTotalPrice),
+      customInputsJson: parsedCustomJson, // Store parsed JSON
     };
     setItems(prev => [...prev, newItem]);
-    setCurrentItem({ productName: '', productType: 'Other', quantity: 1, unitPrice: 0 }); // Reset form
+    // Reset currentItem form, including customInputsJsonString
+    setCurrentItem({ productName: '', productType: 'Other', quantity: 1, unitPrice: 0, customInputsJsonString: '', notes: '' });
     setCurrentItemTotalPrice('0.00');
-    setMessage(null);
   };
 
   const handleDeleteItem = (itemId: string) => {
@@ -87,43 +130,86 @@ const PreBudgetCreatePage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!currentUser || !currentUser.tenantId) {
+      notify(t('preBudget.errorNoTenant'), { type: 'error' });
+      return;
+    }
     if (!clientName.trim()) {
-        setMessage({ type: 'error', text: 'Client name is required.' });
-        return;
+      notify(t('preBudget.errorClientNameRequired'), { type: 'error' });
+      return;
+    }
+     if (!projectScope.trim()) {
+      notify(t('preBudget.errorProjectScopeRequired'), { type: 'error' });
+      return;
     }
     if (items.length === 0) {
-        setMessage({ type: 'error', text: 'Please add at least one item to the pre-budget.' });
-        return;
+      notify(t('preBudget.errorNoItems'), { type: 'error' });
+      return;
     }
 
     setIsSaving(true);
-    setMessage(null);
 
-    const preBudgetData = {
+    const preBudgetDataForHeader: NewPreBudgetData = {
       clientName,
-      items,
-      subTotal,
+      projectScope, // Added
+      estimatedCost: calculatedGrandTotal, // Use calculated grand total as initial estimate
+      status: PreBudgetStatus.DRAFT,
+      // tenantId is added by service using currentUser
+      notes: notes || undefined,
+      subTotal: subTotal,
       discountAmount: parseFloat(discountAmount) || 0,
-      taxRate: parseFloat(taxRate) / 100 || 0, // Convert percentage to decimal
+      taxRate: (parseFloat(taxRate) || 0) / 100, // Store as decimal
       taxAmount: calculatedTaxAmount,
       grandTotal: calculatedGrandTotal,
-      notes: notes || undefined,
     };
 
     try {
-      await prebudgetService.addPreBudget(preBudgetData);
-      setMessage({ type: 'success', text: 'Pre-budget saved successfully!' });
-      setClientName('');
-      setItems([]);
-      setCurrentItem({ productName: '', productType: 'Other', quantity: 1, unitPrice: 0 });
-      setCurrentItemTotalPrice('0.00');
-      setDiscountAmount('0');
-      setTaxRate('0');
-      setNotes('');
-      setTimeout(() => setMessage(null), 4000); 
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to save pre-budget. Please try again.' });
+      const createdPreBudget = await preBudgetService.addPreBudget(preBudgetDataForHeader, currentUser.tenantId);
+      
+      // Now add items
+      let itemsSavedSuccessfully = true;
+      for (const item of items) {
+        const itemData: preBudgetItemService.AddPreBudgetItemData = {
+          preBudgetId: createdPreBudget.id,
+          productId: item.productId, // Assuming StoredPreBudgetItem might have productId
+          customDescription: item.productName, // Using productName as customDescription
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          totalPrice: item.totalPrice,
+          customInputsJson: item.customInputsJson,
+          notes: item.notes,
+        };
+        try {
+          await preBudgetItemService.addPreBudgetItem(itemData);
+        } catch (itemError) {
+          console.error("Error saving item:", item.productName, itemError);
+          notify(t('preBudget.errorSavingItem', {itemName: item.productName }), { type: 'error' });
+          itemsSavedSuccessfully = false;
+          // Decide if to break or try saving other items
+        }
+      }
+
+      if (itemsSavedSuccessfully) {
+        notify(t('preBudget.saveSuccess'), { type: 'success' });
+        // Reset form
+        setClientName('');
+        setProjectScope('');
+        setItems([]);
+        setCurrentItem({ productName: '', productType: 'Other', quantity: 1, unitPrice: 0, customInputsJsonString: '', notes: '' });
+        setCurrentItemTotalPrice('0.00');
+        setDiscountAmount('0');
+        setTaxRate('0');
+        setNotes('');
+        navigate(`/prebudgets/${createdPreBudget.id}`); // Navigate to details page
+      } else {
+        notify(t('preBudget.savePartialSuccess'), { type: 'warning' });
+        // Don't reset form if some items failed, allow user to retry or manage from details page
+         navigate(`/prebudgets/${createdPreBudget.id}`); // Still navigate to see what was saved
+      }
+
+    } catch (error: any) {
       console.error("Save pre-budget error:", error);
+      notify(error.message || t('preBudget.saveError'), { type: 'error' });
     } finally {
       setIsSaving(false);
     }
@@ -151,53 +237,58 @@ const PreBudgetCreatePage: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="bg-white shadow-xl rounded-xl flex flex-col flex-grow">
         <div className="p-6 md:p-8 space-y-8 overflow-y-auto custom-scrollbar flex-grow">
-            {/* Client Section */}
+            {/* Client and Project Scope Section */}
             <section>
-            <h2 className="text-slate-800 text-xl font-semibold leading-tight border-b border-slate-200 pb-3 mb-4">Client Information</h2>
-            <div>
-                <label htmlFor="clientName" className="block text-sm font-medium text-slate-700 mb-1">Client Name *</label>
-                <Input id="clientName" type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} required disabled={isSaving} placeholder="Client's Full Name or Company" />
+            <h2 className="text-slate-800 text-xl font-semibold leading-tight border-b border-slate-200 pb-3 mb-4">{t('preBudget.clientInfoTitle')}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label htmlFor="clientName" className="block text-sm font-medium text-slate-700 mb-1">{t('preBudget.labelClientName')} *</label>
+                    <Input id="clientName" type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} required disabled={isSaving} placeholder={t('preBudget.placeholderClientName')} />
+                </div>
+                <div>
+                    <label htmlFor="projectScope" className="block text-sm font-medium text-slate-700 mb-1">{t('preBudget.labelProjectScope')} *</label>
+                    <Input id="projectScope" type="text" value={projectScope} onChange={(e) => setProjectScope(e.target.value)} required disabled={isSaving} placeholder={t('preBudget.placeholderProjectScope')} />
+                </div>
             </div>
             </section>
 
             {/* Item Entry Section */}
             <section className="border border-slate-200 p-4 rounded-lg bg-slate-50/50">
-            <h3 className="text-slate-700 text-lg font-semibold mb-3">Add Item</h3>
+            <h3 className="text-slate-700 text-lg font-semibold mb-3">{t('preBudget.addItemTitle')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
                 <div>
-                <label htmlFor="productName" className="block text-xs font-medium text-slate-600 mb-1">Product/Service Name *</label>
-                <Input id="productName" name="productName" type="text" value={currentItem.productName} onChange={handleItemChange} placeholder="e.g., Velvet Curtains" disabled={isSaving} className="!h-10 text-sm" />
+                <label htmlFor="productName" className="block text-xs font-medium text-slate-600 mb-1">{t('preBudget.labelProductName')} *</label>
+                <Input id="productName" name="productName" type="text" value={currentItem.productName} onChange={handleItemChange} placeholder={t('preBudget.placeholderProductName')} disabled={isSaving} className="!h-10 text-sm" />
                 </div>
                 <div>
-                <label htmlFor="productType" className="block text-xs font-medium text-slate-600 mb-1">Product Type *</label>
-                <select
-                    id="productType"
-                    name="productType"
-                    value={currentItem.productType}
-                    onChange={handleItemChange}
-                    className="form-select block w-full rounded-lg border-slate-300 bg-white h-10 px-3 text-sm text-slate-900 focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)]"
-                    disabled={isSaving}
-                >
-                    {productTypesArray.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                    ))}
+                <label htmlFor="productType" className="block text-xs font-medium text-slate-600 mb-1">{t('preBudget.labelProductType')} *</label>
+                <select id="productType" name="productType" value={currentItem.productType} onChange={handleItemChange} className="form-select block w-full rounded-lg border-slate-300 bg-white h-10 px-3 text-sm text-slate-900 focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)]" disabled={isSaving} >
+                    {productTypesArray.map(type => (<option key={type} value={type}>{type}</option>))}
                 </select>
                 </div>
                 <div>
-                <label htmlFor="quantity" className="block text-xs font-medium text-slate-600 mb-1">Quantity *</label>
+                <label htmlFor="quantity" className="block text-xs font-medium text-slate-600 mb-1">{t('preBudget.labelQuantity')} *</label>
                 <Input id="quantity" name="quantity" type="number" value={currentItem.quantity.toString()} onChange={handleItemChange} placeholder="1" min="0.01" step="0.01" disabled={isSaving} className="!h-10 text-sm" />
                 </div>
                 <div>
-                <label htmlFor="unitPrice" className="block text-xs font-medium text-slate-600 mb-1">Unit Price ($) *</label>
+                <label htmlFor="unitPrice" className="block text-xs font-medium text-slate-600 mb-1">{t('preBudget.labelUnitPrice')} *</label>
                 <Input id="unitPrice" name="unitPrice" type="number" value={currentItem.unitPrice.toString()} onChange={handleItemChange} placeholder="0.00" min="0" step="0.01" disabled={isSaving} className="!h-10 text-sm" />
                 </div>
             </div>
+             <div className="mt-3">
+                <label htmlFor="customInputsJsonString" className="block text-xs font-medium text-slate-600 mb-1">{t('preBudget.labelCustomInputsJson')}</label>
+                <textarea id="customInputsJsonString" name="customInputsJsonString" value={currentItem.customInputsJsonString} onChange={handleItemChange} placeholder={t('preBudget.placeholderCustomInputsJson')} rows={3} disabled={isSaving} className="form-textarea block w-full rounded-lg border-slate-300 bg-white p-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)]" />
+            </div>
+             <div className="mt-3">
+                <label htmlFor="itemNotes" className="block text-xs font-medium text-slate-600 mb-1">{t('preBudget.labelItemNotes')}</label>
+                <Input id="itemNotes" name="notes" type="text" value={currentItem.notes} onChange={handleItemChange} placeholder={t('preBudget.placeholderItemNotes')} disabled={isSaving} className="!h-10 text-sm" />
+            </div>
             <div className="mt-3 text-right">
-                <p className="text-sm text-slate-600">Item Total: <span className="font-semibold text-slate-800">${currentItemTotalPrice}</span></p>
+                <p className="text-sm text-slate-600">{t('preBudget.itemTotal')}: <span className="font-semibold text-slate-800">${currentItemTotalPrice}</span></p>
             </div>
             <div className="mt-4 flex justify-end">
                 <Button type="button" onClick={handleAddItem} variant="secondary" disabled={isSaving} className="!h-9 text-xs">
-                <Icon iconName="add_circle_outline" className="mr-1.5 text-sm" /> Add Item to Pre-Budget
+                <Icon iconName="add_circle_outline" className="mr-1.5 text-sm" /> {t('preBudget.buttonAddItem')}
                 </Button>
             </div>
             </section>

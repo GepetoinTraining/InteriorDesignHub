@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 import Icon from '../ui/Icon';
 import Button from '../ui/Button';
 
@@ -23,17 +24,19 @@ type ActiveTab = 'tasks' | 'messaging';
 
 const TaskAndMessagesDrawer: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation(); // Initialize useTranslation
   const [activeTab, setActiveTab] = useState<ActiveTab>('tasks');
   const [unreadCount, setUnreadCount] = useState(3); // Mock unread count
 
+  // Mock data; in a real app, this would come from a service and likely be localized there or via keys
   const mockTasks: { today: TaskItem[], upcoming: TaskItem[] } = {
     today: [
-      { id: 't1', text: 'Follow up with Sarah Miller', dueDate: 'Due Today', isCompleted: true },
-      { id: 't2', text: 'Finalize mood board for Johnson Project', dueDate: 'Due Today', isCompleted: true },
+      { id: 't1', text: 'Follow up with Sarah Miller', dueDate: t('taskDrawer.dueDateToday'), isCompleted: true },
+      { id: 't2', text: 'Finalize mood board for Johnson Project', dueDate: t('taskDrawer.dueDateToday'), isCompleted: true },
     ],
     upcoming: [
-      { id: 't3', text: 'Order fabric samples for Williams Residence', dueDate: 'Due in 2 days', isCompleted: false },
-      { id: 't4', text: 'Schedule site visit with Davis client', dueDate: 'Due in 3 days', isCompleted: false },
+      { id: 't3', text: 'Order fabric samples for Williams Residence', dueDate: t('taskDrawer.dueDateInDays', { count: 2 }), isCompleted: false },
+      { id: 't4', text: 'Schedule site visit with Davis client', dueDate: t('taskDrawer.dueDateInDays', { count: 3 }), isCompleted: false },
     ],
   };
 
@@ -95,10 +98,10 @@ const TaskAndMessagesDrawer: React.FC = () => {
         className="flex items-center justify-between w-full p-4 cursor-pointer focus:outline-none"
       >
         <div className="flex items-center">
-          <h2 className="text-lg font-semibold text-gray-800">Tasks & Messaging</h2>
+          <h2 className="text-lg font-semibold text-gray-800">{t('taskDrawer.title')}</h2>
           {unreadCount > 0 && (
             <span className="ml-2 bg-red-500 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
-              {unreadCount}
+              {unreadCount} {/* Number, doesn't need translation itself */}
             </span>
           )}
         </div>
@@ -116,7 +119,7 @@ const TaskAndMessagesDrawer: React.FC = () => {
                             ${activeTab === 'tasks' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
               >
                 <Icon iconName="checklist" className="mr-2 text-base" />
-                Tasks
+                {t('taskDrawer.tabTasks')}
               </button>
               <button
                 onClick={() => handleTabSwitch('messaging')}
@@ -125,7 +128,7 @@ const TaskAndMessagesDrawer: React.FC = () => {
                             ${activeTab === 'messaging' ? 'border-[var(--color-primary)] text-[var(--color-primary)]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
               >
                 <Icon iconName="chat_bubble_outline" className="mr-2 text-base" />
-                Messaging
+                {t('taskDrawer.tabMessaging')}
               </button>
             </nav>
           </div>
@@ -133,7 +136,7 @@ const TaskAndMessagesDrawer: React.FC = () => {
           {/* Tasks Content */}
           {activeTab === 'tasks' && (
             <div className="p-4">
-              <h3 className="text-gray-700 text-base font-semibold mb-3">Today</h3>
+              <h3 className="text-gray-700 text-base font-semibold mb-3">{t('taskDrawer.sectionToday')}</h3>
               <ul className="space-y-3">
                 {mockTasks.today.map(task => (
                   <li key={task.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-150">
@@ -148,7 +151,7 @@ const TaskAndMessagesDrawer: React.FC = () => {
                   </li>
                 ))}
               </ul>
-              <h3 className="text-gray-700 text-base font-semibold mt-6 mb-3">Upcoming</h3>
+              <h3 className="text-gray-700 text-base font-semibold mt-6 mb-3">{t('taskDrawer.sectionUpcoming')}</h3>
               <ul className="space-y-3">
                 {mockTasks.upcoming.map(task => (
                    <li key={task.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-150">
@@ -165,7 +168,7 @@ const TaskAndMessagesDrawer: React.FC = () => {
               </ul>
               <Button variant="primary" fullWidth className="mt-6" onClick={() => alert('Add new task clicked')}>
                 <Icon iconName="add_circle_outline" className="mr-2 text-lg" />
-                Add New Task
+                {t('taskDrawer.buttonAddNewTask')}
               </Button>
             </div>
           )}
@@ -173,7 +176,7 @@ const TaskAndMessagesDrawer: React.FC = () => {
           {/* Messaging Content */}
           {activeTab === 'messaging' && (
             <div className="p-4">
-              <h3 className="text-gray-700 text-base font-semibold mb-3">Recent Messages</h3>
+              <h3 className="text-gray-700 text-base font-semibold mb-3">{t('taskDrawer.sectionRecentMessages')}</h3>
               <ul className="space-y-3">
                 {mockMessages.map(msg => (
                   <li key={msg.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-150 cursor-pointer">
@@ -191,7 +194,7 @@ const TaskAndMessagesDrawer: React.FC = () => {
               </ul>
                <Button variant="primary" fullWidth className="mt-6" onClick={() => alert('New message clicked')}>
                 <Icon iconName="create" className="mr-2 text-lg" />
-                New Message
+                {t('taskDrawer.buttonNewMessage')}
               </Button>
             </div>
           )}

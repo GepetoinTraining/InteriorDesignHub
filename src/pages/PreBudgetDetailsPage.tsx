@@ -1,60 +1,77 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import * as prebudgetService from '../services/prebudgetService';
-import { PreBudget, PreBudgetItem } from '../types/budget';
+import { useTranslation } from 'react-i18next';
+import * as preBudgetService from '../services/preBudgetService'; // Corrected service import
+import { PreBudget, PreBudgetItem, PreBudgetStatus } from '../types/prebudget'; // Use canonical types
+import { useAuth } from '../contexts/AuthContext'; // For user role and ID
+import { useNotifier } from '../hooks/useNotifier'; // For notifications
 import Button from '../components/ui/Button';
 import Icon from '../components/ui/Icon';
 
 const PreBudgetDetailsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { preBudgetId } = useParams<{ preBudgetId: string }>();
   const navigate = useNavigate();
+  const { currentUser, userRole } = useAuth(); // Get current user and role
+  const { notify } = useNotifier();
+
   const [preBudget, setPreBudget] = useState<PreBudget | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!preBudgetId) {
-      setError("No pre-budget ID provided.");
+  const fetchDetails = useCallback(async () => {
+    if (!preBudgetId || !currentUser?.tenantId) {
+      setError(t('preBudget.errorLoadingDefault')); // More generic error
       setIsLoading(false);
       return;
     }
-
-    const fetchDetails = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await prebudgetService.fetchPreBudgetById(preBudgetId);
-        if (data) {
-          setPreBudget(data);
-        } else {
-          setError(`Pre-budget with ID ${preBudgetId} not found.`);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch pre-budget details.");
-      } finally {
-        setIsLoading(false);
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Pass tenantId from currentUser to ensure correct tenant access
+      const data = await preBudgetService.fetchPreBudgetById(preBudgetId, currentUser.tenantId);
+      if (data) {
+        setPreBudget(data);
+      } else {
+        setError(t('preBudget.errorNotFound', { id: preBudgetId }));
+        notify(t('preBudget.errorNotFound', { id: preBudgetId }), { type: 'error' });
       }
-    };
-    fetchDetails();
-  }, [preBudgetId]);
+    } catch (err: any) {
+      console.error("Fetch PreBudget Details Error:", err);
+      setError(err.message || t('preBudget.errorLoadingDefault'));
+      notify(err.message || t('preBudget.errorLoadingDefault'), { type: 'error' });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [preBudgetId, currentUser, t, notify]);
 
-  const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString(undefined, {
+  useEffect(() => {
+    fetchDetails();
+  }, [fetchDetails]);
+
+  const formatDate = (dateInput: string | Date | undefined): string => {
+    if (!dateInput) return 'N/A';
+    return new Date(dateInput).toLocaleDateString(undefined, {
       year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
     });
   };
 
-  const formatCurrency = (amount: number) => {
-    return amount.toLocaleString(undefined, { style: 'currency', currency: 'USD' });
+  const formatCurrency = (amount: number | null | undefined): string => {
+    if (amount == null) return 'N/A'; // Handle null or undefined gracefully
+    return amount.toLocaleString(undefined, { style: 'currency', currency: 'USD' }); // Assuming USD, make dynamic if needed
   };
+  
+  const canEditPreBudget = preBudget &&
+                           preBudget.status === PreBudgetStatus.DRAFT &&
+                           (userRole === 'ADMIN' || (userRole === 'VENDEDOR' && preBudget.createdById === currentUser?.id));
+
 
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center flex-1 p-4 text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-primary)] mb-4"></div>
-        <p className="text-slate-700 text-lg">Loading Pre-Budget Details...</p>
+        <p className="text-slate-700 text-lg">{t('preBudget.loadingData')}</p>
       </div>
     );
   }
@@ -63,10 +80,10 @@ const PreBudgetDetailsPage: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center flex-1 p-4 text-center">
         <Icon iconName="error_outline" className="text-red-500 text-5xl mb-4" />
-        <p className="text-slate-800 text-xl font-semibold mb-2">Error Loading Pre-Budget</p>
+        <p className="text-slate-800 text-xl font-semibold mb-2">{t('preBudget.errorLoadingTitle')}</p>
         <p className="text-slate-600 text-sm mb-6">{error}</p>
-        <Button onClick={() => navigate('/prebudgets/new')} variant="secondary">
-          Back to Pre-Budgets
+        <Button onClick={() => navigate('/prebudgets/new')} variant="secondary"> {/* Adjust route if needed */}
+          {t('preBudget.backToListButton')}
         </Button>
       </div>
     );
@@ -76,7 +93,10 @@ const PreBudgetDetailsPage: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center flex-1 p-4 text-center">
         <Icon iconName="find_in_page" className="text-slate-500 text-5xl mb-4" />
-        <p className="text-slate-800 text-xl font-semibold">Pre-Budget Not Found</p>
+        <p className="text-slate-800 text-xl font-semibold">{t('preBudget.errorNotFound', {id: preBudgetId})}</p>
+         <Button onClick={() => navigate('/prebudgets/new')} variant="secondary" className="mt-4">
+            {t('preBudget.backToListButton')}
+        </Button>
       </div>
     );
   }
@@ -84,61 +104,67 @@ const PreBudgetDetailsPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
       <div className="flex items-center gap-2 px-0 py-3 mb-6 text-sm">
-        <Link to="/prebudgets/new" className="text-slate-500 hover:text-[var(--color-primary)] font-medium leading-normal transition-colors">Pre-Budget</Link>
+        <Link to="/prebudgets/new" className="text-slate-500 hover:text-[var(--color-primary)] font-medium leading-normal transition-colors">{t('authenticatedLayout.navNewPreBudget')}</Link>
         <span className="text-slate-400 font-medium leading-normal">/</span>
-        <span className="text-slate-900 font-medium leading-normal">Pre-Budget Details</span>
+        <span className="text-slate-900 font-medium leading-normal">{t('preBudget.detailsTitle')}</span>
       </div>
 
       <div className="flex flex-wrap justify-between items-start gap-4 p-0 mb-6">
         <div className="flex min-w-72 flex-col gap-2">
-          <h1 className="text-slate-900 text-3xl font-bold leading-tight">Pre-Budget Details</h1>
-          <p className="text-slate-500 text-sm font-normal leading-normal">View and manage the details of this pre-budget.</p>
+          <h1 className="text-slate-900 text-3xl font-bold leading-tight">{t('preBudget.detailsTitle')}</h1>
+          <p className="text-slate-500 text-sm font-normal leading-normal">{t('preBudget.detailsSubtitle')}</p>
         </div>
-        <Button 
-          onClick={() => alert('Edit functionality coming soon!')} // Placeholder for edit
-          className="bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)]"
-        >
-          <Icon iconName="edit" className="mr-2 text-base" />
-          Edit Pre-Budget
-        </Button>
+        {canEditPreBudget && (
+          <Button 
+            onClick={() => navigate(`/prebudgets/edit/${preBudget.id}`)} // Navigate to an edit page
+            className="bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-dark)]"
+          >
+            <Icon iconName="edit" className="mr-2 text-base" />
+            {t('preBudget.editButton')}
+          </Button>
+        )}
       </div>
 
       {/* Client and Meta Info Section */}
       <div className="bg-white shadow-lg rounded-xl border border-slate-200 p-6 mb-6">
-        <h2 className="text-slate-900 text-xl font-semibold leading-tight mb-4">General Information</h2>
+        <h2 className="text-slate-900 text-xl font-semibold leading-tight mb-4">{t('preBudget.generalInfoTitle')}</h2>
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 text-sm">
           <div>
-            <dt className="font-medium text-slate-500">Client Name:</dt>
+            <dt className="font-medium text-slate-500">{t('preBudget.labelClientName')}:</dt>
             <dd className="text-slate-800 mt-0.5">{preBudget.clientName}</dd>
           </div>
           <div>
-            <dt className="font-medium text-slate-500">Pre-Budget ID:</dt>
+            <dt className="font-medium text-slate-500">{t('preBudget.labelProjectScope')}:</dt>
+            <dd className="text-slate-800 mt-0.5">{preBudget.projectScope}</dd>
+          </div>
+          <div>
+            <dt className="font-medium text-slate-500">{t('preBudget.labelPreBudgetId')}</dt>
             <dd className="text-slate-800 mt-0.5">{preBudget.id}</dd>
           </div>
           <div>
-            <dt className="font-medium text-slate-500">Status:</dt>
+            <dt className="font-medium text-slate-500">{t('preBudget.labelStatus')}</dt>
             <dd className="text-slate-800 mt-0.5">
                 <span className={`px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    preBudget.status === 'Approved' ? 'bg-green-100 text-green-800' :
-                    preBudget.status === 'Sent' ? 'bg-blue-100 text-blue-800' :
-                    preBudget.status === 'Rejected' ? 'bg-red-100 text-red-800' :
-                    'bg-slate-100 text-slate-800' // Draft or Archived
+                    preBudget.status === PreBudgetStatus.APPROVED ? 'bg-green-100 text-green-800' :
+                    preBudget.status === PreBudgetStatus.SUBMITTED ? 'bg-blue-100 text-blue-800' : // Assuming SUBMITTED from Prisma
+                    // preBudget.status === 'Rejected' ? 'bg-red-100 text-red-800' : // Add if REJECTED is a status
+                    'bg-slate-100 text-slate-800' // DRAFT or other statuses
                 }`}>
-                    {preBudget.status}
+                    {t(`preBudgetStatus.${preBudget.status}` as const)} {/* Translate status */}
                 </span>
             </dd>
           </div>
            <div>
-            <dt className="font-medium text-slate-500">Created At:</dt>
+            <dt className="font-medium text-slate-500">{t('preBudget.labelCreatedAt')}</dt>
             <dd className="text-slate-800 mt-0.5">{formatDate(preBudget.createdAt)}</dd>
           </div>
           <div>
-            <dt className="font-medium text-slate-500">Last Updated:</dt>
+            <dt className="font-medium text-slate-500">{t('preBudget.labelUpdatedAt')}</dt>
             <dd className="text-slate-800 mt-0.5">{formatDate(preBudget.updatedAt)}</dd>
           </div>
           {preBudget.notes && (
             <div className="md:col-span-2">
-              <dt className="font-medium text-slate-500">Notes:</dt>
+              <dt className="font-medium text-slate-500">{t('preBudget.labelOverallNotes')}</dt>
               <dd className="text-slate-700 mt-0.5 whitespace-pre-wrap">{preBudget.notes}</dd>
             </div>
           )}
@@ -147,23 +173,34 @@ const PreBudgetDetailsPage: React.FC = () => {
 
       {/* Items Table Section */}
       <div className="bg-white shadow-lg rounded-xl border border-slate-200 overflow-hidden mb-6">
-        <h2 className="text-slate-900 text-xl font-semibold leading-tight px-6 py-4 border-b border-slate-200">Items</h2>
+        <h2 className="text-slate-900 text-xl font-semibold leading-tight px-6 py-4 border-b border-slate-200">{t('preBudget.itemsDisplayTitle')}</h2>
         <div className="overflow-x-auto custom-scrollbar">
           <table className="min-w-full">
             <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Item</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden sm:table-cell">Type</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Quantity</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider hidden md:table-cell">Unit Price</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Total</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">{t('preBudget.itemsTableHeaderProduct')}</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider hidden sm:table-cell">{t('preBudget.itemsTableHeaderType')}</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{t('preBudget.itemsTableHeaderQty')}</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider hidden md:table-cell">{t('preBudget.itemsTableHeaderUnitPrice')}</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">{t('preBudget.itemsTableHeaderTotal')}</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-slate-200">
-              {preBudget.items.map((item) => (
+              {preBudget.items?.map((item: PreBudgetItem) => ( // Ensure items is typed correctly if using canonical type
                 <tr key={item.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{item.productName}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 hidden sm:table-cell">{item.productType}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">
+                    <div>{item.customDescription || item.product?.name || 'N/A'}</div>
+                    {item.notes && <div className="text-xs text-slate-500 mt-1"><strong>{t('preBudget.itemNotesDisplay')}</strong> {item.notes}</div>}
+                    {item.customInputsJson && Object.keys(item.customInputsJson).length > 0 && (
+                        <div className="mt-2">
+                            <strong className="text-xs text-slate-600">{t('preBudget.labelCustomConfig')}</strong>
+                            <pre className="bg-slate-50 p-2 rounded text-xs text-slate-700 overflow-x-auto custom-scrollbar">
+                                {JSON.stringify(item.customInputsJson, null, 2)}
+                            </pre>
+                        </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 hidden sm:table-cell">{item.product?.modelType || 'Custom'}</td> {/* Assuming modelType exists on product */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 text-right">{item.quantity}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600 text-right hidden md:table-cell">{formatCurrency(item.unitPrice)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-700 font-medium text-right">{formatCurrency(item.totalPrice)}</td>
@@ -174,24 +211,24 @@ const PreBudgetDetailsPage: React.FC = () => {
         </div>
         {/* Summary Section */}
         <div className="border-t border-slate-200 px-6 py-4">
-          <h3 className="text-slate-900 text-lg font-semibold leading-tight mb-3">Summary</h3>
+          <h3 className="text-slate-900 text-lg font-semibold leading-tight mb-3">{t('preBudget.summaryTitle')}</h3>
           <div className="space-y-2 max-w-xs ml-auto">
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">Subtotal:</span>
+              <span className="text-slate-600">{t('preBudget.summarySubtotal')}</span>
               <span className="font-medium text-slate-800">{formatCurrency(preBudget.subTotal)}</span>
             </div>
-            {preBudget.discountAmount > 0 && (
+            {(preBudget.discountAmount ?? 0) > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Discount:</span>
+                <span className="text-slate-600">{t('preBudget.summaryDiscount')}</span>
                 <span className="font-medium text-green-600">-{formatCurrency(preBudget.discountAmount)}</span>
               </div>
             )}
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">Tax ({ (preBudget.taxRate * 100).toFixed(0) }%):</span>
+              <span className="text-slate-600">{t('preBudget.summaryTaxRate', { rate: (preBudget.taxRate ?? 0) * 100 })}</span>
               <span className="font-medium text-slate-800">{formatCurrency(preBudget.taxAmount)}</span>
             </div>
             <div className="flex justify-between text-lg font-bold text-[var(--color-primary)] pt-2 border-t border-slate-200 mt-2">
-              <span>Grand Total:</span>
+              <span>{t('preBudget.summaryGrandTotal')}</span>
               <span>{formatCurrency(preBudget.grandTotal)}</span>
             </div>
           </div>
@@ -200,11 +237,11 @@ const PreBudgetDetailsPage: React.FC = () => {
 
       {/* Actions Section */}
       <div className="flex flex-col sm:flex-row justify-end items-center gap-3 mt-4">
-          <Button variant="secondary" onClick={() => alert("Send to client functionality coming soon!")}>
-            <Icon iconName="send" className="mr-2 text-base" /> Send to Client
+          <Button variant="secondary" onClick={() => alert("Send to client functionality coming soon!")} disabled={preBudget.status !== PreBudgetStatus.DRAFT && preBudget.status !== PreBudgetStatus.SUBMITTED}>
+            <Icon iconName="send" className="mr-2 text-base" /> {t('preBudget.actionsSendToClient')}
           </Button>
-          <Button variant="primary" onClick={() => alert("Convert to quote functionality coming soon!")}>
-            <Icon iconName="request_quote" className="mr-2 text-base" /> Convert to Formal Quote
+          <Button variant="primary" onClick={() => alert("Convert to quote functionality coming soon!")} disabled={preBudget.status !== PreBudgetStatus.APPROVED}>
+            <Icon iconName="request_quote" className="mr-2 text-base" /> {t('preBudget.actionsConvertToQuote')}
           </Button>
       </div>
 

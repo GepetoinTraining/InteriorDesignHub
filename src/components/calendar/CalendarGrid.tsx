@@ -16,7 +16,18 @@ const CalendarGrid: React.FC<CalendarGridProps> = ({
   onDateSelect,
   events,
 }) => {
-  const daysOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  // const daysOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S']; // Replaced by translated keys
+  const { t } = useTranslation();
+
+  const daysOfWeek = [
+    t('calendar.daysShort.sun'),
+    t('calendar.daysShort.mon'),
+    t('calendar.daysShort.tue'),
+    t('calendar.daysShort.wed'),
+    t('calendar.daysShort.thu'),
+    t('calendar.daysShort.fri'),
+    t('calendar.daysShort.sat'),
+  ];
 
   const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
   const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay(); // 0 (Sun) - 6 (Sat)

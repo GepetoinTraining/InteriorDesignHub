@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 import { Notification, NotificationType } from '../../contexts/NotificationContext';
 import Icon from '../ui/Icon';
 
@@ -9,6 +10,7 @@ interface NotificationItemProps {
 }
 
 const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onDismiss }) => {
+  const { t } = useTranslation(); // Initialize useTranslation
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -79,7 +81,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onDis
       <button
         onClick={handleDismiss}
         className={`ml-4 p-1 -m-1 rounded-full hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-white/50 transition-colors ${textColor}`}
-        aria-label="Dismiss notification"
+        aria-label={t('notificationItem.dismissLabel')}
       >
         <Icon iconName="close" className="text-lg" />
       </button>

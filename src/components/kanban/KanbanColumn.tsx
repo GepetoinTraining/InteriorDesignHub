@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 import { KanbanColumnData } from '../../types/lead';
 import KanbanCard from './KanbanCard';
 
@@ -8,6 +9,7 @@ interface KanbanColumnProps {
 }
 
 const KanbanColumn: React.FC<KanbanColumnProps> = ({ column }) => {
+  const { t } = useTranslation(); // Initialize useTranslation
   return (
     <div className="kanban-column bg-gray-100 rounded-lg p-4 shadow-sm flex flex-col h-full w-[300px] sm:w-[320px] flex-shrink-0">
       <div className="flex justify-between items-center mb-4">
@@ -23,7 +25,7 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ column }) => {
           ))
         ) : (
           <div className="text-center text-xs text-gray-400 py-10">
-            No leads in this stage.
+            {t('kanbanColumn.noLeadsMessage')}
           </div>
         )}
       </div>

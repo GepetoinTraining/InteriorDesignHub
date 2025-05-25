@@ -65,6 +65,7 @@ model User {
   clienteMasterId String?
   clienteMaster   ClienteMaster? @relation("MasterClientAccounts", fields: [clienteMasterId], references: [id])
   assignedVisits Visita[] @relation("SalespersonVisits")
+  invoices       Invoice[] @relation("ClientInvoices")
 }
 
 model ClientProfile {
@@ -108,6 +109,7 @@ model Tenant {
   
   productSales  ProductSale[]      // ✅ Added reverse relation
   leadConversions LeadConversion[] // ✅ Added reverse relation
+  invoices      Invoice[]
 }
 
 model Product {
@@ -169,11 +171,18 @@ model PreBudget {
   id            String          @id @default(uuid())
   clientName    String
   projectScope  String
-  estimatedCost Float
+  estimatedCost Float // Initial estimated cost, might differ from final calculated grandTotal
   createdById   String
   status        PreBudgetStatus
   tenantId      String
+  notes         String?
+  subTotal      Float?          @default(0)
+  discountAmount Float?         @default(0)
+  taxRate       Float?          @default(0) // Store as decimal, e.g., 0.07 for 7%
+  taxAmount     Float?          @default(0)
+  grandTotal    Float?          @default(0)
   createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt // Added updatedAt
 
   tenant        Tenant          @relation(fields: [tenantId], references: [id])
   createdBy     User            @relation("CreatedPreBudgets", fields: [createdById], references: [id])
@@ -235,4 +244,32 @@ model Visita {
 
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
+}
+
+enum InvoiceStatus {
+  DRAFT
+  PENDING_PAYMENT
+  PAID
+  CANCELLED
+  XML_GENERATED
+  SEFAZ_SENT
+  SEFAZ_ERROR
+}
+
+model Invoice {
+  id              String        @id @default(uuid())
+  invoiceNumber   String        @unique
+  clientId        String
+  client          User          @relation("ClientInvoices", fields: [clientId], references: [id])
+  items           Json // { description: string, quantity: number, unitPrice: number, totalPrice: number }[]
+  totalAmount     Float
+  issueDate       DateTime      @default(now())
+  dueDate         DateTime
+  status          InvoiceStatus
+  xmlContent      String?
+  sefazReference  String?
+  tenantId        String
+  tenant          Tenant        @relation(fields: [tenantId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }

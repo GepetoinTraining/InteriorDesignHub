@@ -1,5 +1,6 @@
 
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next'; // Import useTranslation
 import Icon from '../ui/Icon';
 
 export interface CartItem {
@@ -29,6 +30,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   onRemoveItem,
   isReferred,
 }) => {
+  const { t } = useTranslation(); // Initialize useTranslation
   const placeholderImage = (name: string) => `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=E0E7FF&color=4338CA&size=80`;
 
   const canConnectWithArchitect = useMemo(() => {
@@ -52,11 +54,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         aria-labelledby="cart-drawer-title"
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 id="cart-drawer-title" className="text-xl font-semibold text-slate-800">Your Cart</h2>
+          <h2 id="cart-drawer-title" className="text-xl font-semibold text-slate-800">{t('cartDrawer.title')}</h2>
           <button
             className="text-gray-500 hover:text-gray-700 transition-colors p-1 -mr-2"
             onClick={onClose}
-            aria-label="Close cart"
+            aria-label={t('cartDrawer.closeCartLabel')}
           >
             <Icon iconName="close" className="text-2xl" />
           </button>
@@ -66,12 +68,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           {items.length === 0 ? (
             <div className="text-center text-slate-500 py-10">
               <Icon iconName="shopping_cart_checkout" className="text-4xl mb-3" />
-              <p>Your cart is empty.</p>
+              <p>{t('cartDrawer.emptyMessage')}</p>
               <button 
                 onClick={onClose} 
                 className="mt-4 text-sm font-medium text-[var(--color-primary)] hover:text-[var(--color-primary-dark)]"
               >
-                Continue Shopping
+                {t('cartDrawer.continueShopping')}
               </button>
             </div>
           ) : (
@@ -86,7 +88,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                 />
                 <div className="flex-grow">
                   <h3 className="text-slate-800 text-base font-medium leading-tight line-clamp-2">{item.name}</h3>
-                  <p className="text-slate-500 text-sm">Unit Price: ${item.unitPrice.toFixed(2)}</p>
+                  <p className="text-slate-500 text-sm">{t('cartDrawer.unitPriceLabel', { price: item.unitPrice.toFixed(2) })}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <button
                       onClick={() => onQuantityChange(item.id, item.quantity - 1)}
@@ -112,7 +114,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                     onClick={() => onRemoveItem(item.id)}
                     className="text-red-500 hover:text-red-700 text-xs font-medium mt-1 transition-colors"
                   >
-                    Remove
+                    {t('cartDrawer.removeButton')}
                   </button>
                 </div>
               </div>
@@ -123,12 +125,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         {items.length > 0 && (
           <div className="p-6 border-t border-gray-200">
             <div className="flex justify-between items-center mb-4">
-              <p className="text-slate-600 text-lg font-medium">Subtotal</p>
-              <p className="text-slate-900 text-xl font-semibold">${subtotal.toFixed(2)}</p>
+              <p className="text-slate-600 text-lg font-medium">{t('cartDrawer.subtotalLabel')}</p>
+              <p className="text-slate-900 text-xl font-semibold">${subtotal.toFixed(2)}</p> {/* Currency formatting might need specific handling if not USD */}
             </div>
             <div className="space-y-3">
               <button className="w-full flex items-center justify-center rounded-lg h-12 px-6 bg-[#cedfed] text-slate-900 text-base font-semibold hover:bg-[#b8d7ea] transition-colors">
-                Request a Quote
+                {t('cartDrawer.requestQuoteButton')}
               </button>
               <button 
                 className={`w-full flex items-center justify-center rounded-lg h-12 px-6 text-base font-semibold transition-colors
@@ -137,9 +139,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                               : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                             }`}
                 disabled={!canConnectWithArchitect}
-                title={!canConnectWithArchitect ? "This option becomes available for referred users or larger orders." : ""}
+                title={!canConnectWithArchitect ? t('cartDrawer.connectWithArchitectDisabledTooltip') : ""}
               >
-                Connect with a Local Architect Professional
+                {t('cartDrawer.connectWithArchitectButton')}
               </button>
             </div>
           </div>

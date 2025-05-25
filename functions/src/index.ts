@@ -22,6 +22,7 @@ export * from "./admin"; // Added for admin-related functions
 export * from "./clienteMasters"; // Added for ClienteMaster CRUD functions
 export * from "./visitas"; // Added for Visita CRUD functions
 export * from "./preBudgetItems"; // Added for PreBudgetItem CRUD functions
+export * from "./invoices"; // Added for Invoice CRUD functions
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript

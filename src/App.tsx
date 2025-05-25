@@ -295,6 +295,26 @@ const App: React.FC = () => {
                 }
               />
               <Route 
+                path="/invoices/new" 
+                element={
+                  <ProtectedRoute> {/* Add appropriate roles if needed, e.g., [UserRole.ADMIN, UserRole.FINANCEIRO] */}
+                    <AuthenticatedLayout>
+                      <InvoiceCreatePage />
+                    </AuthenticatedLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route 
+                path="/invoices/:invoiceId" 
+                element={
+                  <ProtectedRoute>
+                    <AuthenticatedLayout>
+                      <InvoiceDetailPage />
+                    </AuthenticatedLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route 
                 path="/client-payments"
                 element={<ClientPaymentsPage />} 
               />
