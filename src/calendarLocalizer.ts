@@ -8,7 +8,7 @@ import ptBR from 'date-fns/locale/pt-BR';
 
 const locales = {
   'en-US': enUS,
-  'pt-BR': ptBR,
+  'pt': ptBR,
 };
 
 // Determine current locale for startOfWeek, default to enUS if not found

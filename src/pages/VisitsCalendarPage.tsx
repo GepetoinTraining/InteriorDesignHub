@@ -1,25 +1,22 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Calendar, Views, Event as CalendarEvent } from 'react-big-calendar';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { localizer } from '../../calendarLocalizer';
-import * as visitaService from '../../services/visitaService';
-import { Visita, ListVisitasFilters } from '../../types/visita';
-import { useAuth, UserRole } from '../../contexts/AuthContext';
-import { useNotifier } from '../../hooks/useNotifier';
-import Icon from '../../components/ui/Icon';
-import Button from '../../components/ui/Button';
-// import VisitFormModal from '../../components/visitas/VisitFormModal'; // TODO: To be created/used later
+import { localizer } from '../calendarLocalizer';
+import * as visitaService from '../services/visitaService';
+import { Visita, ListVisitasFilters } from '../types/visita';
+import { useAuth, UserRole } from '../contexts/AuthContext';
+import { useNotifier } from '../hooks/useNotifier';
+import Icon from '../components/ui/Icon';
+import Button from '../components/ui/Button';
+import VisitaForm from '../components/visitas/VisitaForm'; // ✅ Correct location!
+import * as authService from '../services/authService'; // For fetching users (salespersons)
+import { User } from '../types/user';
+import { Lead } from '../types/lead';
+import { ClientProfile } from '../types/client';
+import { useHasPermission } from '../hooks/useHasPermission';
 
 const VisitsCalendarPage: React.FC = () => {
-import VisitaForm from '../../components/visitas/VisitaForm'; // Import VisitaForm
-import * as authService from '../../services/authService'; // For fetching users (salespersons)
-import { User } from '../../types/user';
-import { Lead } from '../../types/lead';
-import { ClientProfile } from '../../types/client';
-import { useHasPermission } from '../../hooks/useHasPermission';
 
 
 const VisitsCalendarPage: React.FC = () => {
@@ -210,6 +207,7 @@ const VisitsCalendarPage: React.FC = () => {
       )}
     </div>
   );
+}
 };
 
 export default VisitsCalendarPage;

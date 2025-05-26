@@ -65,3 +65,25 @@ export interface ListVisitasFilters {
   status?: VisitaStatus;
   // tenantId is typically implicit from the authenticated user's context
 }
+export interface CreateVisitaData {
+  dateTime: string;
+  durationMinutes: number;
+  subject: string;
+  notes?: string;
+  status?: VisitaStatus;
+  assignedToUserId: string;
+  leadId?: string | null;
+  clientId?: string | null;
+  tenantId: string;
+}
+
+export interface UpdateVisitaData {
+  dateTime?: string;
+  durationMinutes?: number;
+  subject?: string;
+  notes?: string;
+  status?: VisitaStatus;
+  assignedToUserId?: string;
+  leadId?: string | null;
+  clientId?: string | null;
+}

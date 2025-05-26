@@ -8,9 +8,9 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    supportedLngs: ['pt-BR', 'en'],
-    fallbackLng: 'pt-BR',
-    lng: 'pt-BR',
+    supportedLngs: ['pt', 'en'],
+    fallbackLng: 'en',
+    lng: 'pt',
     debug: true, // Set to false in production
     ns: ['translation'],
     defaultNS: 'translation',

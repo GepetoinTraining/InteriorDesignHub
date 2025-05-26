@@ -52,18 +52,20 @@ const App: React.FC = () => {
         <NotificationProvider>
           <Router>
             <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route 
-                path="/" 
-                element={
-                  <ProtectedRoute>
-                    <AuthenticatedLayout>
-                      <DashboardPage />
-                    </AuthenticatedLayout>
-                  </ProtectedRoute>
-                } 
-              />
+  <Route path="/" element={<ShopPage />} />
+  <Route path="/shop" element={<ShopPage />} />
+  <Route path="/login" element={<LoginPage />} />
+  <Route path="/register" element={<RegisterPage />} />
+  <Route 
+    path="/dashboard"
+    element={
+      <ProtectedRoute>
+        <AuthenticatedLayout>
+          <DashboardPage />
+        </AuthenticatedLayout>
+      </ProtectedRoute>
+    }
+  />
               <Route 
                 path="/profile"
                 element={

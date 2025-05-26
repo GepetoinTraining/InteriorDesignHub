@@ -2,6 +2,7 @@
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, getIdTokenResult } from 'firebase/auth';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { User, UserRole } from '../contexts/AuthContext'; // Assuming UserRole is defined here or in types
+import { Role } from '@prisma/client';
 
 // Initialize Firebase Auth and Functions
 const auth = getAuth();
@@ -10,39 +11,14 @@ const functions = getFunctions();
 // TODO: The User type in AuthContext might need to be updated to include tenantId from claims.
 // For now, we'll work with the existing User type and log claims separately.
 
-interface MockUser extends User {
-  password?: string;
+export interface MockUser {
+  id: string;
+  email: string;
+  name: string;
+  role: Role;
+  tenantId: string;
+  createdAt: Date;
 }
-
-// Fix: Changed MOCK_USERS from const to let to allow modification for deleteUser functionality.
-let MOCK_USERS: MockUser[] = [
-  {
-    id: '1',
-    email: 'user@example.com',
-    name: 'Test User',
-    username: 'user',
-    password: 'password123',
-    role: UserRole.USER, // Updated to use UserRole enum
-    phone: '555-1234',
-    company: 'Design Pros Inc.',
-    jobTitle: 'Lead Designer',
-    avatarUrl: 'https://lh3.googleusercontent.com/a/ACg8ocL3pBwD2wXAD_0XSLnWe276C5oi5Wvs_xHqhx-LrSbrnjAf3=s96-c' // Placeholder
-  },
-  {
-    id: '2',
-    email: 'admin@example.com',
-    name: 'Admin User',
-    username: 'admin',
-    password: 'adminpassword',
-    role: UserRole.ADMIN, // Updated to use UserRole enum
-    phone: '555-0000',
-    company: 'Stitch Design HQ',
-    jobTitle: 'System Administrator',
-    avatarUrl: 'https://lh3.googleusercontent.com/a/ACg8ocL_2J_jD5dndpsVcClUMucn8EhC_BgA1oQylLSSHPJi2=s96-c' // Placeholder
-  },
-  // Removed sales and client roles as they are not in UserRole enum for now.
-  // Add them back if UserRole enum is expanded.
-];
 
 
 export const login = async (emailInput: string, passwordInput: string): Promise<User> => {

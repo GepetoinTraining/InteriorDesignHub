@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@google/genai": "^1.0.1",
+    "@vitejs/plugin-react": "^4.5.0",
     "date-fns": "^4.1.0",
     "firebase": "^11.8.1",
     "i18n": "^0.15.1",
@@ -25,7 +26,10 @@
     "recharts": "^2.12.7"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.1.7",
     "@types/node": "^22.14.0",
+    "@types/react-big-calendar": "^1.16.1",
+    "tailwindcss": "^4.1.7",
     "typescript": "~5.7.2",
     "vite": "^6.2.0"
   }
