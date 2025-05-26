@@ -3,7 +3,7 @@ import { createUserWithEmailAndPassword, User as FirebaseUser } from "firebase/a
 import { doc, getDoc } from "firebase/firestore";
 import { getFunctions, httpsCallable, HttpsCallableResult } from 'firebase/functions';
 import { useNavigate } from 'react-router-dom';
-import { auth, db } from "../firebase";
+import { auth, db } from "../config/firebase";
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Logo from '../components/ui/Logo';
