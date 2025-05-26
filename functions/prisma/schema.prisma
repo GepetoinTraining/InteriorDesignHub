@@ -11,8 +11,11 @@ datasource db {
 
 enum Role {
   ADMIN
-  DESIGNER
-  USER
+  VENDEDOR
+  COMPRADOR
+  FINANCEIRO
+  CLIENTE_FINAL
+  USER 
 }
 
 enum LeadStatus {
@@ -29,6 +32,21 @@ enum PreBudgetStatus {
   APPROVED
 }
 
+enum VisitaStatus {
+  PLANNED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
+enum ProductModelType {
+  CORTINA
+  PERSIANA
+  PAPEL_DE_PAREDE
+  SERVICO
+  OUTRO
+}
+
 model User {
   id         String    @id @default(uuid())
   email      String    @unique
@@ -41,6 +59,36 @@ model User {
   activities Activity[]
   assignedLeads Lead[] @relation("AssignedLeads")
   preBudgets PreBudget[] @relation("CreatedPreBudgets")
+
+  clientProfile  ClientProfile?
+
+  clienteMasterId String?
+  clienteMaster   ClienteMaster? @relation("MasterClientAccounts", fields: [clienteMasterId], references: [id])
+  assignedVisits Visita[] @relation("SalespersonVisits")
+}
+
+model ClientProfile {
+  id             String    @id @default(uuid())
+  userId         String    @unique // Foreign key to User table
+  user           User      @relation(fields: [userId], references: [id])
+  address        String?
+  phoneNumber    String?   // Specific client phone, might differ from User's primary phone
+  companyName    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  visits         Visita[]
+}
+
+model ClienteMaster {
+  id          String    @id @default(uuid())
+  name        String    // e.g., "Company Group Name"
+  adminNotes  String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  clients     User[]    @relation("MasterClientAccounts")
+  tenantId    String    // Assuming ClienteMaster is tenant-specific
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
 }
 
 model Tenant {
@@ -54,6 +102,9 @@ model Tenant {
   products      Product[]
   leads         Lead[]
   preBudgets    PreBudget[]
+  clienteMasters ClienteMaster[]
+  visitas       Visita[]
+  preBudgetItems PreBudgetItem[] // Explicitly ensuring this relation exists for PreBudgetItem.tenant
   
   productSales  ProductSale[]      // ✅ Added reverse relation
   leadConversions LeadConversion[] // ✅ Added reverse relation
@@ -66,11 +117,14 @@ model Product {
   price       Float
   stockQty    Int
   imageUrl    String
+  modelType   ProductModelType @default(OUTRO)
+  preBudgetItemSchemaJson Json?     // Corrected to Json?
   tenantId    String
   createdAt   DateTime      @default(now())
 
   tenant      Tenant        @relation(fields: [tenantId], references: [id])
   sales       ProductSale[]
+  preBudgetItems PreBudgetItem[] // Relation to PreBudgetItem
 }
 
 model ProductSale {
@@ -98,6 +152,7 @@ model Lead {
   tenant         Tenant           @relation(fields: [tenantId], references: [id])
   assignedUser   User?            @relation("AssignedLeads", fields: [assignedUserId], references: [id])
   conversions    LeadConversion[]
+  visits         Visita[]
 }
 
 model LeadConversion {
@@ -122,6 +177,30 @@ model PreBudget {
 
   tenant        Tenant          @relation(fields: [tenantId], references: [id])
   createdBy     User            @relation("CreatedPreBudgets", fields: [createdById], references: [id])
+  items         PreBudgetItem[]
+}
+
+model PreBudgetItem {
+  id                   String    @id @default(uuid())
+  preBudgetId          String
+  preBudget            PreBudget @relation(fields: [preBudgetId], references: [id], onDelete: Cascade)
+
+  productId            String?    // Link to an existing product from catalog
+  product              Product?   @relation(fields: [productId], references: [id])
+  
+  customDescription    String?    // If not using a catalog product, or to override product name
+  quantity             Int       @default(1)
+  
+  customInputsJson     Json?     // Corrected to Json?
+  
+  notes                String?
+  unitPrice            Float?    // Price per unit, can be from Product or manually set
+  totalPrice           Float?    // quantity * unitPrice, can be manually set if no calculation yet
+
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  tenantId             String    // For tenant isolation of items directly
+  tenant               Tenant    @relation(fields: [tenantId], references: [id])
 }
 
 model Activity {
@@ -132,4 +211,28 @@ model Activity {
   timestamp DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id])
+}
+
+model Visita {
+  id                String        @id @default(uuid())
+  dateTime          DateTime
+  durationMinutes   Int
+  subject           String
+  notes             String?
+  status            VisitaStatus  @default(PLANNED)
+
+  assignedToUserId  String
+  assignedTo        User          @relation("SalespersonVisits", fields: [assignedToUserId], references: [id])
+
+  leadId            String?
+  lead              Lead?         @relation(fields: [leadId], references: [id])
+
+  clientProfileId   String?
+  clientProfile     ClientProfile? @relation(fields: [clientProfileId], references: [id])
+
+  tenantId          String
+  tenant            Tenant        @relation(fields: [tenantId], references: [id])
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 }
